@@ -1,0 +1,353 @@
+/* Admin Settings Page Layout */
+.admin-settings-grid-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    margin-top: 1.5rem;
+    align-items: stretch;
+}
+
+/* Section Card Styles */
+.settings-section-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.section-header {
+    padding: 1.25rem 1.5rem 1.25rem 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.01);
+}
+
+.section-header .section-icon {
+    margin-left: 0.5rem;
+    /* inset from card border */
+    flex-shrink: 0;
+}
+
+.section-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.section-icon.general {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+
+.section-icon.financial {
+    background: #fdf2f8;
+    color: #db2777;
+}
+
+.section-icon.smtp {
+    background: #f0fdf4;
+    color: #16a34a;
+}
+
+.section-icon.security {
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+.section-header h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.section-body {
+    padding: 1.5rem 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.section-divider {
+    height: 1px;
+    background: var(--border);
+}
+
+/* Form Styling within Settings */
+.admin-form-group {
+    margin-bottom: 0;
+}
+
+.admin-form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.admin-form-group select,
+.admin-form-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    color: var(--text);
+    transition: border-color 0.2s;
+}
+
+/* Custom dropdown arrow — inset from border edge */
+.admin-form-group select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 2.75rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.875rem center;
+    background-size: 16px;
+    cursor: pointer;
+}
+
+.admin-form-group input:focus {
+    border-color: var(--primary);
+    outline: none;
+}
+
+/* Input With Icon Styling */
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-icon .input-icon {
+    position: absolute;
+    left: 1rem;
+    color: var(--text-secondary);
+    pointer-events: none;
+}
+
+.input-with-icon input {
+    padding-left: 2.75rem !important;
+}
+
+/* Remove number spin buttons */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+/* Maintenance Toggle */
+.maintenance-toggle-compact {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    margin-top: auto;
+}
+
+.toggle-label h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.toggle-label p {
+    margin: 2px 0 0 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Modern Switch Slider */
+.modern-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+}
+
+.modern-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.switch-slider {
+    background-color: var(--primary);
+}
+
+input:checked+.switch-slider:before {
+    transform: translateX(24px);
+}
+
+/* Form Row for 2-column inputs */
+.admin-form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+/* Security Section Specifics */
+.security-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.security-form-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+}
+
+.security-action {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Checkbox Styles */
+.checkbox-cell {
+    display: flex;
+    align-items: flex-start;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    margin-top: 1.85rem;
+    /* Aligns visually with adjacent input field */
+}
+
+.checkbox-container input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    margin: 0;
+    accent-color: var(--primary);
+}
+
+.label-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+}
+
+/* Tablet Responsiveness */
+@media (max-width: 1024px) {
+    .admin-settings-grid-layout {
+        gap: 24px;
+    }
+
+    .security-form-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+
+    .admin-form-row,
+    .security-form-row {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .checkbox-container {
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .header-actions {
+        width: 100%;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .header-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Dark Mode Tweaks */
+body.dark-mode .section-header {
+    background: rgba(255, 255, 255, 0.01);
+}
+
+body.dark-mode .maintenance-toggle-compact {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+body.dark-mode .section-icon.general {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+body.dark-mode .section-icon.financial {
+    background: rgba(219, 39, 119, 0.1);
+}
+
+body.dark-mode .section-icon.smtp {
+    background: rgba(22, 163, 74, 0.1);
+}
+
+body.dark-mode .section-icon.security {
+    background: rgba(234, 88, 12, 0.1);
+}

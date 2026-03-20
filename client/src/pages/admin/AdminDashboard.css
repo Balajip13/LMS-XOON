@@ -1,0 +1,243 @@
+/* Admin Dashboard Styling */
+.dashboard-container {
+    padding: 0;
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Admin Dashboard Top Section Removed - Handled by global admin-page-header */
+
+.admin-dashboard-alerts {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.dashboard-alert {
+    padding: 0.6rem 1rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.dashboard-alert.status-warning {
+    background-color: #fffbeb;
+    color: #92400e;
+    border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+.dashboard-alert.status-success {
+    background-color: #f0fdf4;
+    color: #166534;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.dashboard-alert:hover {
+    transform: translateY(-2px);
+    filter: brightness(0.98);
+}
+
+/* Metric Cards Grid: 4 cols desktop, 2 cols tablet, 1 col mobile */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 1200px) {
+    .metrics-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .metrics-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
+.metric-card {
+    background: var(--surface);
+    padding: 1.25rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+    height: 100%;
+    /* Ensure uniform height */
+}
+
+.metric-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary);
+}
+
+.metric-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.metric-card:hover .metric-icon {
+    transform: scale(1.1);
+}
+
+.metric-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.metric-info p {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.metric-info h3 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin: 0;
+    color: var(--text);
+    line-height: 1.1;
+}
+
+/* Remove secondary breakpoints - unified above */
+
+@media (max-width: 1024px) {
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .metrics-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .metric-card {
+        padding: 1.25rem;
+        min-height: 90px;
+    }
+
+    .metric-info h3 {
+        font-size: 1.4rem;
+    }
+}
+
+/* Analytics & Feed Sections */
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    align-items: stretch;
+}
+
+.chart-wrapper {
+    width: 100%;
+    height: 240px;
+    /* Reduced height as requested */
+    margin-top: 1rem;
+}
+
+@media (max-width: 1024px) {
+    .analytics-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.analytics-card,
+.feed-card {
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.analytics-card {
+    padding: 1.5rem;
+}
+
+.feed-card {
+    padding: 0;
+}
+
+.analytics-card-header,
+.feed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.analytics-card-header h3,
+.feed-header h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.feed-body {
+    padding: 0;
+}
+
+/* Common UI Utilities handled by global styles */
+
+@media (max-width: 768px) {
+    .admin-dashboard-top-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-dashboard-alerts {
+        flex-direction: column;
+    }
+
+    .dashboard-alert {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-primary,
+    .btn-outline {
+        width: 100%;
+    }
+}

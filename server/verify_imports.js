@@ -1,0 +1,28 @@
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import connectDB from './config/db.js';
+import path from 'path';
+import fs from 'fs';
+import userRoutes from './routes/userRoutes.js';
+import courseRoutes from './routes/courseRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
+import certificateRoutes from './routes/certificateRoutes.js';
+import contactRoutes from './routes/contactRoutes.js';
+import newsletterRoutes from './routes/newsletterRoutes.js';
+import supportRoutes from './routes/supportRoutes.js';
+import chapterRoutes from './routes/chapterRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
+import settingsRoutes from './routes/settingsRoutes.js';
+import enrollmentRoutes from './routes/enrollmentRoutes.js';
+import announcementRoutes from './routes/announcementRoutes.js';
+import instructorRoutes from './routes/instructorRoutes.js';
+import categoryRoutes from './routes/categoryRoutes.js';
+import payoutRoutes from './routes/payoutRoutes.js';
+
+console.log('All imports successful');
+process.exit(0);

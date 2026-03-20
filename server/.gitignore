@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+node_modules/
+uploads/
+*.log
+error*.txt
+full_error*.txt
+debug_output*.txt
+out*.txt
+out*.log
+crash*.json

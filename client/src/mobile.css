@@ -1,0 +1,31 @@
+/* Mobile Navigation */
+@media (max-width: 768px) {
+    .mobile-toggle {
+        display: block !important;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--text);
+    }
+
+    .desktop-menu {
+        position: fixed;
+        top: 73px;
+        /* Adjust based on navbar height */
+        left: 0;
+        right: 0;
+        background-color: var(--surface);
+        flex-direction: column;
+        padding: 2rem;
+        border-bottom: 1px solid var(--border);
+        transition: transform 0.3s ease-in-out;
+        transform: translateY(-150%);
+        opacity: 0;
+        z-index: 999;
+    }
+
+    .desktop-menu.open {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
