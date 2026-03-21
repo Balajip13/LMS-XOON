@@ -10,8 +10,11 @@ const Courses = () => {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const { data } = await api.get('/courses'); // ✅ CORRECT
-                setCourses(data?.courses || []);
+                const { data } = await api.get('/courses');
+
+                // ✅ FIXED LINE
+                setCourses(data?.courses || data || []);
+
             } catch (err) {
                 console.error('Error fetching courses:', err.response?.data || err.message);
                 setCourses([]);
