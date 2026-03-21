@@ -8,7 +8,8 @@ import connectDB from './config/db.js';
 import path from 'path';
 import fs from 'fs';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
-import { generalLimiter, authLimiter, uploadLimiter, emailLimiter } from './middleware/rateLimiter.js';
+import { generalLimiter, uploadLimiter, emailLimiter } from './middleware/rateLimiter.js';
+
 import userRoutes from './routes/userRoutes.js';
 import courseRoutes from './routes/courseRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
@@ -30,49 +31,34 @@ import uploadRoutes from './routes/uploadRoutes.js';
 
 const app = express();
 
+// ✅ IMPORTANT FOR RENDER
+app.set("trust proxy", 1);
+
 // Security Middleware
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-// Apply general rate limiting to all requests
+// Rate limiting
 app.use(generalLimiter);
 
-// CORS Configuration
-const allowedOrigins = [
-    process.env.CLIENT_URL || 'http://localhost:5173',
-    'http://localhost:5174',
-    'http://127.0.0.1:5173',
-    'http://127.0.0.1:5174'
-];
-
+// ✅ FIXED CORS (TEMPORARY OPEN)
 app.use(cors({
-    origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        
-        if (allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+    origin: "*",
+    credentials: true
 }));
 
-// Body parsing middleware
+// Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
-// Logging middleware (only in development)
+// Logging
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
-// Database Connection
+// DB
 connectDB();
 
 // Static files
@@ -83,18 +69,16 @@ if (!fs.existsSync(uploadDir)) {
 }
 app.use('/uploads', express.static(uploadDir));
 
-// Health check endpoint
+// Health check
 app.get('/api/health', (req, res) => {
     res.status(200).json({
         success: true,
-        message: 'XOON LMS API is healthy',
-        timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV
+        message: 'XOON LMS API is healthy'
     });
 });
 
-// API Routes with specific rate limiters
-app.use('/api/users', userRoutes); // Temporarily removed authLimiter for testing
+// Routes
+app.use('/api/users', userRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
@@ -113,34 +97,23 @@ app.use('/api/tickets', supportTicketRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/upload', uploadLimiter, uploadRoutes);
 
-// Base API endpoint
+// Base API
 app.get('/api', (req, res) => {
-    res.status(200).json({
-        success: true,
-        message: 'XOON LMS API Base is running...',
-        version: '1.0.0'
-    });
+    res.json({ message: 'API running...' });
 });
 
-// Root endpoint
+// Root
 app.get('/', (req, res) => {
-    res.status(200).json({
-        success: true,
-        message: 'XOON LMS API is running...',
-        documentation: '/api'
-    });
+    res.json({ message: 'Server running...' });
 });
 
-// 404 Handler
+// Error handlers
 app.use(notFound);
-
-// Centralized Error Handler
 app.use(errorHandler);
 
+// Server
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-    console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
-    console.log(`🔒 Rate limiting enabled`);
+    console.log(`🚀 Server running on port ${PORT}`);
 });
