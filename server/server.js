@@ -40,8 +40,8 @@ app.use(helmet({
 }));
 
 // 🚀 ✅ FIXED CORS (FINAL WORKING)
-app.use(cors());
-app.options("*", cors());
+app.use(cors()); // ✅ KEEP THIS
+// ❌ REMOVED: app.options("*", cors());
 
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
