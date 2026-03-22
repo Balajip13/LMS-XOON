@@ -12,32 +12,20 @@ const PublicRoute = ({ children }) => {
     }
 
     if (user) {
-        // Check for instructor application intent first - this should override role-based redirects
-        const applyInstructorIntent = localStorage.getItem('applyInstructorIntent');
-        const role = normalizeRole(user?.role);
-        console.log('DEBUG: PublicRoute - applyInstructorIntent:', applyInstructorIntent);
-        console.log('DEBUG: PublicRoute - user.role (normalized):', role);
-        console.log('DEBUG: PublicRoute - location.state?.from:', location.state?.from);
-
-        // If user has instructor intent, allow them to proceed to the intended page
-        if (applyInstructorIntent === 'true') {
-            console.log('DEBUG: PublicRoute - Allowing redirect due to instructor intent');
-            // Get the intended destination from location state
-            const from = location.state?.from?.pathname || location.state?.from || '/apply-instructor';
-            return <Navigate to={from} replace />;
+        // Login/Register must stay mounted after auth so Login.jsx can run post-login navigation
+        // (apply-instructor intent, pending status, role). Do not redirect away from these paths.
+        if (location.pathname === '/login' || location.pathname === '/register') {
+            return children;
         }
 
-        // If user is logged in and tries to access public routes (like /, /login, /register),
-        // redirect them to their specific dashboard.
+        const role = normalizeRole(user?.role);
+
         const dashboardPath =
             role === 'admin' ? '/admin-dashboard' :
             role === 'instructor' ? '/teacher-dashboard' :
             '/dashboard';
 
-        // If they came from a specific page, return them there, otherwise go to dashboard
-        const from = location.state?.from?.pathname || location.state?.from || dashboardPath;
-        console.log('DEBUG: PublicRoute - Redirecting to:', from);
-        return <Navigate to={from} replace />;
+        return <Navigate to={dashboardPath} replace />;
     }
 
     return children;

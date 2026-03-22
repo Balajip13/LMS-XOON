@@ -286,7 +286,9 @@ const UploadZone = ({ file, onFile, onRemove, error }) => {
 
 /* ─── Main Component ─────────────────────────────────────────────────────── */
 const ApplyInstructor = () => {
-    const { user, logout, refreshUser, api } = useAuth();
+    console.log('ApplyInstructor component loaded');
+
+    const { user, logout, refreshUser, api, loading: authLoading } = useAuth();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [statusLoading, setStatusLoading] = useState(true);
@@ -295,38 +297,87 @@ const ApplyInstructor = () => {
     const [resumeError, setResumeError] = useState('');
 
     const [formData, setFormData] = useState({
-        fullName: user?.name || '',
+        fullName: '',
         biography: '',
         expertise: '',
         experience: '',
         category: '',
         reason: '',
         portfolio: '',
+        mobile: '',
     });
 
     useEffect(() => {
-        if (user?.role === 'instructor') { navigate('/instructor/dashboard'); return; }
-        if (user?.role === 'admin') { navigate('/admin/dashboard'); return; }
-        
-        fetchApplicationStatus();
-    }, [user, navigate]);
+        if (user?.name) {
+            setFormData((prev) => ({
+                ...prev,
+                fullName: prev.fullName || user.name || '',
+                mobile: prev.mobile || user.mobile || '',
+            }));
+        }
+    }, [user?.name, user?.mobile]);
 
-    const fetchApplicationStatus = async () => {
+    useEffect(() => {
+        if (authLoading) return;
+        const role = String(user?.role || '').trim().toLowerCase();
+        if (role === 'instructor') {
+            navigate('/teacher-dashboard', { replace: true });
+            return;
+        }
+        if (role === 'admin') {
+            navigate('/admin-dashboard', { replace: true });
+            return;
+        }
+    }, [authLoading, user, navigate]);
+
+    const fetchApplicationStatus = async (profileUser = user) => {
         try {
             const { data } = await api.get('/instructor/my-application');
+            console.log('API response:', data);
             if (data?.success) {
-                setApplication(data.data);
-                if (data.data?.status === 'approved') {
-                    await refreshUser();
-                    navigate('/instructor/dashboard');
+                if (data.data) {
+                    setApplication({
+                        ...data.data,
+                        resumeFileName: data.data.resumeFileName || data.data.resumeOriginalName || data.data.resume,
+                    });
+                    if (data.data?.status === 'approved') {
+                        await refreshUser();
+                        navigate('/teacher-dashboard', { replace: true });
+                    }
+                } else if (profileUser?.instructorRequestStatus === 'rejected') {
+                    setApplication({
+                        status: 'rejected',
+                        rejectionReason: profileUser.rejectionReason || '',
+                    });
                 }
             }
-        } catch {
-            console.error('Failed to fetch application status');
+        } catch (err) {
+            console.error('Failed to fetch application status', err?.response?.data || err?.message);
+            if (profileUser?.instructorRequestStatus === 'rejected') {
+                setApplication({
+                    status: 'rejected',
+                    rejectionReason: profileUser.rejectionReason || '',
+                });
+            }
         } finally {
             setStatusLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (!user) return;
+        console.log('Role:', String(user.role || '').trim().toLowerCase());
+        console.log('Status:', user.instructorRequestStatus);
+    }, [user]);
+
+    useEffect(() => {
+        if (authLoading || !user?._id) return;
+        const role = String(user.role || '').trim().toLowerCase();
+        if (role === 'instructor' || role === 'admin') return;
+        setStatusLoading(true);
+        fetchApplicationStatus(user);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- run when user session is ready
+    }, [authLoading, user?._id, user?.role, user?.instructorRequestStatus]);
 
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
     const handleFile = (file, err) => { setResumeError(err || ''); setResumeFile(err ? null : file); };
@@ -338,29 +389,101 @@ const ApplyInstructor = () => {
         try {
             const fd = new FormData();
             Object.entries(formData).forEach(([k, v]) => fd.append(k, v));
+            if (user?.email) {
+                fd.append('email', user.email);
+            }
             fd.append('resume', resumeFile);
             const { data } = await api.post('/instructor/apply', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+            console.log('Submit response:', data);
             if (data.success) {
                 toast.success(data.message || 'Application submitted!');
-                await refreshUser();
-                setApplication(data.data);
+                if (data.data) {
+                    setApplication({
+                        ...data.data,
+                        resumeFileName: data.data.resumeFileName || data.data.resumeOriginalName || data.data.resume,
+                    });
+                }
+                const updatedUser = await refreshUser();
+                console.log('User after submit:', updatedUser);
             }
         } catch (error) {
+            console.error('Apply API error:', error?.response?.data || error?.message);
             toast.error(error.response?.data?.message || 'Failed to submit application');
-            if (error.response?.data?.data) setApplication(error.response.data.data);
+            if (error.response?.data?.data) {
+                const d = error.response.data.data;
+                setApplication({
+                    ...d,
+                    resumeFileName: d.resumeFileName || d.resumeOriginalName || d.resume,
+                });
+            }
         } finally {
             setLoading(false);
         }
     };
 
-    /* ── Loading spinner ── */
-    if (statusLoading) return (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: 'var(--background)' }}>
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-        </div>
-    );
+    if (authLoading || !user) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: 'var(--background)', color: 'var(--text-secondary)' }}>
+                Loading…
+            </div>
+        );
+    }
 
-    if (user?.role === 'instructor') return null;
+    const role = String(user.role || '').trim().toLowerCase();
+    if (role === 'instructor' || role === 'admin') {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: 'var(--background)', color: 'var(--text-secondary)' }}>
+                Redirecting…
+            </div>
+        );
+    }
+
+    /* ── Loading spinner ── */
+    if (statusLoading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: 'var(--background)', flexDirection: 'column', gap: '1rem' }}>
+                <div
+                    style={{
+                        width: '48px',
+                        height: '48px',
+                        border: '3px solid var(--border)',
+                        borderTopColor: 'var(--primary)',
+                        borderRadius: '50%',
+                        animation: 'applySpin 0.8s linear infinite',
+                    }}
+                />
+                <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Loading application status…</p>
+                <style>{`@keyframes applySpin { to { transform: rotate(360deg); } }`}</style>
+            </div>
+        );
+    }
+
+    const normalizeApplication = (app) => {
+        if (!app) return null;
+        return {
+            ...app,
+            resumeFileName: app.resumeFileName || app.resumeOriginalName || app.resume,
+        };
+    };
+
+    const baseApp = normalizeApplication(application);
+    const applicationView =
+        baseApp ||
+        (user?.instructorRequestStatus === 'rejected'
+            ? { status: 'rejected', rejectionReason: user.rejectionReason || '' }
+            : null);
+
+    const pendingFromUser = user?.instructorRequestStatus === 'pending';
+    const effectiveApplication =
+        applicationView && (applicationView.status === 'pending' || applicationView.status === 'approved')
+            ? applicationView
+            : pendingFromUser
+                ? {
+                    status: 'pending',
+                    createdAt: user.updatedAt || user.createdAt,
+                    resumeFileName: user.instructorApplication?.resumeFileName || null,
+                }
+                : null;
 
     /* ── Header Component (Always Visible) ── */
     const Header = () => (
@@ -406,9 +529,9 @@ const ApplyInstructor = () => {
         </header>
     );
 
-    /* ── Status card (pending / approved) ── */
-    if (application && application.status !== 'rejected') {
-        const isPending = application.status === 'pending';
+    /* ── Status card (pending / approved) — also when user is pending but application fetch lagged ── */
+    if (effectiveApplication) {
+        const isPending = effectiveApplication.status === 'pending';
         return (
             <>
                 <Header />
@@ -427,9 +550,9 @@ const ApplyInstructor = () => {
                         </p>
                         <div style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)', borderRadius: '12px', padding: '1.25rem 1.5rem', marginBottom: '2rem' }}>
                             {[
-                                ['Status', <span style={{ fontWeight: 800, color: isPending ? 'var(--primary)' : 'var(--success)', textTransform: 'uppercase', fontSize: '0.85rem' }}>{application.status}</span>],
-                                ['Submitted', new Date(application.createdAt).toLocaleDateString()],
-                                application.resumeFileName && ['Resume', `📄 ${application.resumeFileName}`],
+                                ['Status', <span style={{ fontWeight: 800, color: isPending ? 'var(--primary)' : 'var(--success)', textTransform: 'uppercase', fontSize: '0.85rem' }}>{effectiveApplication.status}</span>],
+                                effectiveApplication.createdAt && ['Submitted', new Date(effectiveApplication.createdAt).toLocaleDateString()],
+                                effectiveApplication.resumeFileName && ['Resume', `📄 ${effectiveApplication.resumeFileName}`],
                             ].filter(Boolean).map(([label, val]) => (
                                 <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.4rem 0', borderBottom: '1px solid var(--border)', fontSize: '0.88rem' }}>
                                     <span style={{ color: 'var(--text-muted)' }}>{label}</span>
@@ -466,12 +589,12 @@ const ApplyInstructor = () => {
                         </div>
 
                         {/* Rejection Banner */}
-                        {application?.status === 'rejected' && (
+                        {applicationView?.status === 'rejected' && (
                             <div style={{ backgroundColor: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '12px', padding: '1.25rem 1.5rem', marginBottom: '2rem', display: 'flex', gap: '0.85rem', alignItems: 'flex-start' }}>
                                 <XCircle size={20} color="var(--error)" style={{ flexShrink: 0, marginTop: '2px' }} />
                                 <div>
                                     <h4 style={{ color: 'var(--error)', margin: '0 0 0.25rem', fontWeight: 700 }}>Application Rejected</h4>
-                                    <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{application.rejectionReason || 'Please update your profile and try again.'}</p>
+                                    <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{applicationView.rejectionReason || 'Please update your profile and try again.'}</p>
                                     <p style={{ margin: '0.4rem 0 0', fontWeight: 600, fontSize: '0.83rem', color: 'var(--text)' }}>You can re-submit your updated application below.</p>
                                 </div>
                             </div>
@@ -543,7 +666,7 @@ const ApplyInstructor = () => {
                             {/* Submit */}
                             <button
                                 type="submit"
-                                disabled={loading}
+                                disabled={loading || user?.instructorRequestStatus === 'pending'}
                                 style={{
                                     width: '100%',
                                     padding: '0.95rem',

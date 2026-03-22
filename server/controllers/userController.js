@@ -50,8 +50,8 @@ const loginUser = asyncHandler(async (req, res) => {
 
     // Check password
     try {
-        const isPasswordValid = await user.matchPassword(password);
-        
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
         if (!isPasswordValid) {
             return res.status(401).json({
                 success: false,
@@ -79,7 +79,8 @@ const loginUser = asyncHandler(async (req, res) => {
 
     // Check for Maintenance Mode (except for Admins)
     const settings = await Settings.findOne();
-    if (settings?.maintenanceMode && user.role !== 'admin') {
+    const roleNorm = String(user.role || '').trim().toLowerCase();
+    if (settings?.maintenanceMode && roleNorm !== 'admin') {
         return res.status(503).json({
             success: false,
             message: 'System is under maintenance. Please try again later.',
@@ -97,11 +98,16 @@ const loginUser = asyncHandler(async (req, res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
-            role: user.role,
+            role: roleNorm,
             profileImage: user.profileImage,
             isInstructor: user.isInstructor,
             isBlocked: user.isBlocked,
-            status: user.status
+            status: user.status,
+            instructorRequestStatus: user.instructorRequestStatus,
+            instructorApplication: user.instructorApplication,
+            rejectionReason: user.rejectionReason,
+            resumeUrl: user.resumeUrl,
+            mobile: user.mobile,
         }
     });
 });
@@ -151,11 +157,13 @@ const registerUser = asyncHandler(async (req, res) => {
         });
     }
 
-    // Create new user
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     const user = await User.create({
         name,
         email,
-        password,
+        password: hashedPassword,
         role: 'student'
     });
 
@@ -180,7 +188,8 @@ const registerUser = asyncHandler(async (req, res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
-            role: user.role
+            role: String(user.role || '').trim().toLowerCase(),
+            instructorRequestStatus: user.instructorRequestStatus
         }
     });
 });
@@ -207,8 +216,7 @@ const logoutUser = asyncHandler(async (req, res) => {
 // @access  Private
 const getUserProfile = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id)
-        .populate('enrolledCourses', 'title thumbnail instructor')
-        .populate('instructorCourses', 'title thumbnail enrolledStudents');
+        .populate('enrolledCourses', 'title thumbnail instructor');
 
     if (!user) {
         return res.status(404).json({
@@ -224,15 +232,19 @@ const getUserProfile = asyncHandler(async (req, res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
-            role: user.role,
+            role: String(user.role || '').trim().toLowerCase(),
             profileImage: user.profileImage,
             bio: user.bio,
             notificationSettings: user.notificationSettings,
             enrolledCourses: user.enrolledCourses,
-            instructorCourses: user.instructorCourses,
             isInstructor: user.isInstructor,
             isBlocked: user.isBlocked,
             status: user.status,
+            instructorRequestStatus: user.instructorRequestStatus,
+            instructorApplication: user.instructorApplication,
+            rejectionReason: user.rejectionReason,
+            resumeUrl: user.resumeUrl,
+            mobile: user.mobile,
             createdAt: user.createdAt
         }
     });

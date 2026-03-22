@@ -57,6 +57,10 @@ const userSchema = mongoose.Schema({
     mobile: {
         type: String,
     },
+    resumeUrl: {
+        type: String,
+        default: '',
+    },
     linkedin: {
         type: String,
         default: '',
@@ -66,6 +70,10 @@ const userSchema = mongoose.Schema({
         enum: ['none', 'pending', 'approved', 'rejected'],
         default: 'none'
     },
+    instructorApplication: {
+        type: mongoose.Schema.Types.Mixed,
+        default: null,
+    },
     rejectionReason: {
         type: String,
         default: ''
@@ -74,9 +82,13 @@ const userSchema = mongoose.Schema({
     timestamps: true,
 });
 
-// Middleware to hash password before saving
+// Middleware to hash password before saving (skip if already a bcrypt hash from controller)
 userSchema.pre('save', async function () {
     if (!this.password || !this.isModified('password')) {
+        return;
+    }
+
+    if (/^\$2[aby]\$\d{2}\$/.test(this.password)) {
         return;
     }
 

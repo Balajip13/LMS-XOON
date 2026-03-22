@@ -10,44 +10,67 @@ import {
     Loader2,
     Download,
     FileText,
-    AlertCircle,
-    Eye
+    AlertCircle
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import './AdminInstructors.css';
 
+const API_ORIGIN = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
+
 const AdminInstructors = () => {
     const { api } = useAuth();
 
-    // View function - opens file in browser using local static serving
-    const handleView = (filename) => {
-        if (!filename) {
-            toast.error("Resume not available");
+    const handleView = (resumeRef) => {
+        if (!resumeRef) {
+            toast.error('Resume not available');
             return;
         }
-        window.open(`http://localhost:5000/uploads/resumes/${filename}`, "_blank");
+        if (/^https?:\/\//i.test(resumeRef)) {
+            window.open(resumeRef, '_blank');
+            return;
+        }
+        window.open(`${API_ORIGIN}/uploads/resumes/${encodeURIComponent(resumeRef)}`, '_blank');
     };
 
-    // Download function - uses fetch + blob method with filename encoding
-    const handleDownload = async (filename) => {
-        if (!filename) {
-            toast.error("Resume not available");
+    const handleDownload = async (resumeRef, displayName) => {
+        if (!resumeRef) {
+            toast.error('Resume not available');
             return;
         }
-        
+
+        if (/^https?:\/\//i.test(resumeRef)) {
+            try {
+                const response = await fetch(resumeRef);
+                if (!response.ok) throw new Error(`Download failed: ${response.status}`);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = displayName || 'resume';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (err) {
+                console.error('Download error:', err);
+                window.open(resumeRef, '_blank');
+            }
+            return;
+        }
+
         try {
-            const token = localStorage.getItem("token");
-            
+            const token = localStorage.getItem('token');
+
             if (!token) {
-                toast.error("Authentication required");
+                toast.error('Authentication required');
                 return;
             }
-            
-            const encoded = encodeURIComponent(filename);
-            
+
+            const encoded = encodeURIComponent(resumeRef);
+
             const response = await fetch(
-                `http://localhost:5000/api/instructor/resume/download/${encoded}`,
+                `${API_ORIGIN}/api/instructor/resume/download/${encoded}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -63,18 +86,17 @@ const AdminInstructors = () => {
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
 
-            const a = document.createElement("a");
+            const a = document.createElement('a');
             a.href = url;
-            a.download = filename;
+            a.download = displayName || resumeRef;
             document.body.appendChild(a);
             a.click();
             a.remove();
-            
+
             window.URL.revokeObjectURL(url);
-            
         } catch (err) {
-            console.error("Download error:", err);
-            toast.error(err.message || "Failed to download resume");
+            console.error('Download error:', err);
+            toast.error(err.message || 'Failed to download resume');
         }
     };
     const [activeTab, setActiveTab] = useState('approved');
@@ -477,7 +499,7 @@ const AdminInstructors = () => {
                                                             color: 'var(--text)',
                                                             wordBreak: 'break-all'
                                                         }}>
-                                                            📄 {app.resume}
+                                                            📄 {app.resumeOriginalName || app.resume}
                                                         </span>
                                                     </div>
                                                     <div
@@ -488,7 +510,7 @@ const AdminInstructors = () => {
                                                         }}
                                                     >
                                                         <button
-                                                            onClick={() => handleDownload(app.resume)}
+                                                            onClick={() => handleDownload(app.resume, app.resumeOriginalName)}
                                                             style={{
                                                                 padding: '10px 20px',
                                                                 fontSize: '14px',

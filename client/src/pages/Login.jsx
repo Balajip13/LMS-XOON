@@ -11,37 +11,26 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const { login, user } = useAuth();
+    const { login, refreshUser } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const [authError, setAuthError] = useState('');
 
-    // Show registration success message if coming from register
     useEffect(() => {
         if (location.state?.message) {
             toast.success(location.state.message);
-            // Clear the state to prevent showing again on refresh
             navigate(location.pathname, { replace: true, state: null });
         }
-        
-        // Pre-fill email if provided from registration
+
         if (location.state?.registeredEmail) {
             setEmail(location.state.registeredEmail);
         }
     }, [location.state, navigate, location.pathname]);
 
-    // handleSubmit handles post-login navigation
     const handleSubmit = async (e) => {
         e.preventDefault();
         setAuthError('');
         setIsLoading(true);
-
-        // Debug: Log the current values
-        console.log('Login attempt with:', { email, password });
-        console.log('Email length:', email.length);
-        console.log('Password length:', password.length);
-        console.log('Email trimmed:', email.trim());
-        console.log('Password trimmed:', password.trim());
 
         if (!email.trim() || !password.trim()) {
             setAuthError('Please fill all fields');
@@ -50,57 +39,51 @@ const Login = () => {
         }
 
         try {
-            console.log('🔍 Attempting login with:', { email: email.trim(), password: '***' });
-            console.log('📊 Email to be sent:', email.trim());
-            console.log('🔑 Password length to be sent:', password.length);
-            
             const loginResponse = await login(email.trim(), password);
-            const role = normalizeRole(loginResponse?.user?.role);
-            const instructorRequestStatus = loginResponse?.user?.instructorRequestStatus;
+            let profile = null;
+            try {
+                profile = await refreshUser();
+            } catch {
+                profile = null;
+            }
+            const role = normalizeRole(profile?.role ?? loginResponse?.user?.role);
+            const instructorRequestStatus =
+                profile?.instructorRequestStatus ?? loginResponse?.user?.instructorRequestStatus;
 
-            console.log('✅ Login successful, response:', loginResponse);
-            console.log('👤 Normalized role for routing:', role);
-            console.log('👤 instructorRequestStatus:', instructorRequestStatus);
-            console.log('🎯 Role check for routing:');
-            console.log(`  - Is admin: ${role === 'admin'}`);
-            console.log(`  - Is instructor: ${role === 'instructor'}`);
-            console.log(`  - Is student: ${role === 'student'}`);
-            
             toast.success('Login Successful');
 
-            // STEP 1A: Check location.state.from (HIGHEST PRIORITY)
-            const from = location.state?.from?.pathname || location.state?.from;
-            
-            if (from) {
-                console.log('[Login] redirecting to "from":', from);
-                navigate(from);
-                return; // STOP execution
+            const applyInstructorIntent = localStorage.getItem('applyInstructorIntent');
+
+            console.log('Role:', role);
+            console.log('Status:', instructorRequestStatus);
+
+            if (applyInstructorIntent === 'true') {
+                localStorage.removeItem('applyInstructorIntent');
+                navigate('/apply-instructor');
+                return;
             }
 
-            // STEP 1B: Check applyInstructorIntent (SECOND PRIORITY)
-            const applyInstructorIntent = localStorage.getItem("applyInstructorIntent");
-            
-            if (applyInstructorIntent === "true") {
-                // Redirect immediately to /apply-instructor 
-                localStorage.removeItem("applyInstructorIntent");
-                navigate("/apply-instructor");
-                return; // STOP execution
+            if (instructorRequestStatus === 'pending') {
+                navigate('/apply-instructor');
+                return;
             }
 
-            // STEP 2: Check instructorStatus (THIRD PRIORITY)
-            if (instructorRequestStatus === "pending") {
-                navigate("/apply-instructor");
-                return; // STOP execution
+            if (instructorRequestStatus === 'rejected') {
+                navigate('/apply-instructor');
+                return;
             }
 
-            // STEP 3: Only if NO from, NO intent, and NO pending status, run role-based logic
-            const destination =
-                role === 'admin' ? '/admin-dashboard' :
-                role === 'instructor' ? '/teacher-dashboard' :
-                '/dashboard';
+            if (role === 'instructor') {
+                navigate('/teacher-dashboard');
+                return;
+            }
 
-            console.log('[Login] role-based destination:', destination);
-            navigate(destination);
+            if (role === 'admin') {
+                navigate('/admin-dashboard');
+                return;
+            }
+
+            navigate('/dashboard');
         } catch (err) {
             const msg = err.response?.data?.message || 'Login failed';
             setAuthError(msg);
@@ -170,7 +153,7 @@ const Login = () => {
                                     required
                                     style={{
                                         paddingLeft: '2.5rem',
-                                        paddingRight: '3rem', // Increased padding for eye icon and browser icons
+                                        paddingRight: '3rem',
                                         width: '100%'
                                     }}
                                     placeholder="Enter your password"

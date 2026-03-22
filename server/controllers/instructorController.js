@@ -1,76 +1,134 @@
 import mongoose from 'mongoose';
 import path from 'path';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
+import cloudinary from '../config/cloudinary.js';
 import InstructorApplication from '../models/InstructorApplication.js';
 import User from '../models/User.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const uploadResumeToCloudinary = async (file) => {
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+        const err = new Error('Resume storage is not configured. Set CLOUDINARY_* environment variables.');
+        err.code = 'CLOUDINARY_CONFIG';
+        throw err;
+    }
+    const dataUri = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+    return cloudinary.uploader.upload(dataUri, {
+        folder: 'xoon_lms/resumes',
+        resource_type: 'raw',
+        use_filename: true,
+        unique_filename: true,
+    });
+};
 
 // @desc    Submit instructor application
 // @route   POST /api/instructor/apply
 // @access  Private
 const submitApplication = async (req, res) => {
     try {
-        // Get user ID from authenticated user
         if (!req.user) {
             return res.status(401).json({ success: false, message: 'User not authenticated' });
         }
 
         const userId = req.user._id;
-        const { fullName, email, mobile, expertise, experience, biography, reason, portfolio, category } = req.body;
+        const { fullName, mobile, expertise, experience, biography, reason, portfolio, category } = req.body;
 
-        // Resume is required
         if (!req.file) {
             return res.status(400).json({ success: false, message: 'Resume required' });
         }
 
-        const resumeFile = req.file.filename;
+        const cloudResult = await uploadResumeToCloudinary(req.file);
+        const secureUrl = cloudResult.secure_url;
+        const resumeOriginalName = req.file.originalname || 'resume';
 
-        // Check for existing application
+        const email = req.user.email;
+
         const existingApplication = await InstructorApplication.findOne({ userId });
 
+        let applicationDoc;
         if (existingApplication) {
-            // Update existing application
-            existingApplication.fullName = fullName;
-            existingApplication.email = email;
-            existingApplication.biography = biography;
-            existingApplication.expertise = expertise;
-            existingApplication.experience = experience;
-            existingApplication.category = category;
-            existingApplication.reason = reason;
-            existingApplication.portfolio = portfolio;
-            existingApplication.resume = resumeFile;
+            existingApplication.fullName = fullName || existingApplication.fullName;
+            existingApplication.biography = biography ?? existingApplication.biography;
+            existingApplication.expertise = expertise ?? existingApplication.expertise;
+            existingApplication.experience = experience ?? existingApplication.experience;
+            existingApplication.category = category ?? existingApplication.category;
+            existingApplication.reason = reason ?? existingApplication.reason;
+            existingApplication.portfolio = portfolio ?? existingApplication.portfolio;
+            existingApplication.mobile = mobile ?? existingApplication.mobile;
+            existingApplication.resume = secureUrl;
+            existingApplication.resumeOriginalName = resumeOriginalName;
             existingApplication.status = 'pending';
             await existingApplication.save();
+            applicationDoc = existingApplication;
         } else {
-            // Create new application
-            const application = await InstructorApplication.create({
-                user: userId,
+            applicationDoc = await InstructorApplication.create({
                 userId,
-                fullName,
-                email,
+                fullName: fullName || req.user.name,
+                mobile: mobile || '',
                 biography,
                 expertise,
                 experience,
                 category,
                 reason,
-                portfolio,
-                resume: resumeFile,
-                status: 'pending'
+                portfolio: portfolio || '',
+                resume: secureUrl,
+                resumeOriginalName,
+                status: 'pending',
             });
         }
 
-        await User.findByIdAndUpdate(userId, { instructorRequestStatus: 'pending' });
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        user.instructorRequestStatus = 'pending';
+        user.rejectionReason = '';
+        user.resumeUrl = secureUrl;
+        user.instructorApplication = {
+            fullName: fullName || user.name,
+            email,
+            mobile: mobile || user.mobile || '',
+            expertise,
+            experience,
+            biography,
+            reason,
+            portfolio: portfolio || '',
+            category,
+            resumeFileName: resumeOriginalName,
+            resumeUrl: secureUrl,
+        };
+        if (mobile) {
+            user.mobile = mobile;
+        }
+        await user.save();
+
+        const applicationPayload = {
+            ...applicationDoc.toObject(),
+            resumeFileName: applicationDoc.resumeOriginalName || applicationDoc.resume,
+        };
+
+        const userFresh = await User.findById(userId).select('-password').lean();
 
         res.json({
             success: true,
-            message: 'Application submitted successfully'
+            message: 'Application submitted',
+            user: {
+                _id: userFresh._id,
+                name: userFresh.name,
+                email: userFresh.email,
+                role: String(userFresh.role || '').trim().toLowerCase(),
+                profileImage: userFresh.profileImage,
+                instructorRequestStatus: userFresh.instructorRequestStatus,
+                instructorApplication: userFresh.instructorApplication,
+                resumeUrl: userFresh.resumeUrl,
+                mobile: userFresh.mobile,
+            },
+            data: applicationPayload,
         });
     } catch (error) {
         console.error('[InstructorApplicationSubmitError]', error);
-        res.status(500).json({
+        const status = error.code === 'CLOUDINARY_CONFIG' ? 503 : 500;
+        res.status(status).json({
             success: false,
             message: error.message || 'Error submitting application'
         });
@@ -82,44 +140,41 @@ const submitApplication = async (req, res) => {
 // @access  Private
 const downloadResume = async (req, res) => {
     try {
-        const fileName = req.params.filename;
-        
-        if (!fileName) {
-            return res.status(400).json({ message: "Filename is required" });
+        const raw = req.params.filename;
+
+        if (!raw) {
+            return res.status(400).json({ message: 'Filename or URL is required' });
         }
-        
-        // Check both possible locations
+
+        const ref = decodeURIComponent(raw);
+        if (/^https?:\/\//i.test(ref)) {
+            return res.redirect(ref);
+        }
+
         const possiblePaths = [
-            path.join(process.cwd(), "uploads", fileName),
-            path.join(process.cwd(), "uploads", "resumes", fileName)
+            path.join(process.cwd(), 'uploads', ref),
+            path.join(process.cwd(), 'uploads', 'resumes', ref),
         ];
-        
+
         let filePath = null;
         for (const possiblePath of possiblePaths) {
-            console.log("Checking path:", possiblePath);
             if (fs.existsSync(possiblePath)) {
                 filePath = possiblePath;
                 break;
             }
         }
-        
+
         if (!filePath) {
-            console.error('[DownloadResumeError] File not found in any location');
-            return res.status(404).json({ message: "File not found" });
+            return res.status(404).json({ message: 'File not found' });
         }
-        
-        console.log("Downloading:", filePath); // Debug log
-        
-        // Set headers to force download
-        res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
-        res.setHeader("Content-Type", "application/octet-stream");
-        
-        const stream = fs.createReadStream(filePath);
-        stream.pipe(res);
-        
+
+        res.setHeader('Content-Disposition', `attachment; filename="${ref}"`);
+        res.setHeader('Content-Type', 'application/octet-stream');
+
+        fs.createReadStream(filePath).pipe(res);
     } catch (error) {
         console.error('[DownloadResumeError]', error);
-        res.status(500).json({ message: "Download failed" });
+        res.status(500).json({ message: 'Download failed' });
     }
 };
 
@@ -129,17 +184,21 @@ const downloadResume = async (req, res) => {
 const serveResume = async (req, res) => {
     try {
         const { filename } = req.params;
-        
+
         if (!filename) {
-            return res.status(400).json({ message: "Filename is required" });
+            return res.status(400).json({ message: 'Filename or URL is required' });
         }
-        
-        // Check both possible locations
+
+        const ref = decodeURIComponent(filename);
+        if (/^https?:\/\//i.test(ref)) {
+            return res.redirect(ref);
+        }
+
         const possiblePaths = [
-            path.join(process.cwd(), "uploads", filename),
-            path.join(process.cwd(), "uploads", "resumes", filename)
+            path.join(process.cwd(), 'uploads', ref),
+            path.join(process.cwd(), 'uploads', 'resumes', ref),
         ];
-        
+
         let filePath = null;
         for (const possiblePath of possiblePaths) {
             if (fs.existsSync(possiblePath)) {
@@ -147,17 +206,15 @@ const serveResume = async (req, res) => {
                 break;
             }
         }
-        
+
         if (!filePath) {
-            console.error('[ServeResumeError] File not found in any location');
-            return res.status(404).json({ message: "Resume file not found" });
+            return res.status(404).json({ message: 'Resume file not found' });
         }
-        
-        console.log('[ServeResume] Serving file for viewing:', filePath);
-        res.sendFile(filePath);
+
+        res.sendFile(path.resolve(filePath));
     } catch (error) {
         console.error('[ServeResumeError]', error);
-        res.status(500).json({ message: "Failed to serve file" });
+        res.status(500).json({ message: 'Failed to serve file' });
     }
 };
 
@@ -230,11 +287,12 @@ const reviewApplication = async (req, res) => {
         application.rejectionReason = status === 'rejected' ? (rejectionReason || '') : '';
         await application.save();
 
-        // Update User Role & Status
         if (status === 'approved') {
             user.role = 'instructor';
             user.instructorRequestStatus = 'approved';
+            user.rejectionReason = '';
         } else {
+            // Rejection: keep role as student (do not promote)
             user.instructorRequestStatus = 'rejected';
             user.rejectionReason = rejectionReason || '';
         }

@@ -18,31 +18,23 @@ const InstructorLanding = () => {
     const navigate = useNavigate();
 
     const handleApply = () => {
-        // Set the instructor intent flag
-        localStorage.setItem('applyInstructorIntent', 'true');
-        console.log('DEBUG: InstructorLanding - Set applyInstructorIntent to true');
-        
-        // Verify it was set
-        const verifyFlag = localStorage.getItem('applyInstructorIntent');
-        console.log('DEBUG: InstructorLanding - Verification - applyInstructorIntent:', verifyFlag);
-        
-        if (!user) {
-            console.log('DEBUG: InstructorLanding - User not logged in, redirecting to login');
-            // Not logged in -> redirect to login with return path
-            navigate('/login', { state: { from: '/apply-instructor' } });
-        } else if (user.role === 'student') {
-            console.log('DEBUG: InstructorLanding - User is student, redirecting to apply-instructor');
-            // Student -> go to application form
-            navigate('/apply-instructor');
-        } else if (user.role === 'instructor') {
-            console.log('DEBUG: InstructorLanding - User is instructor, redirecting to instructor dashboard');
-            // Already instructor -> go to dashboard
-            navigate('/instructor/dashboard');
-        } else if (user.role === 'admin') {
-            console.log('DEBUG: InstructorLanding - User is admin, redirecting to admin dashboard');
-            // Admin
-            navigate('/admin/dashboard');
+        const role = String(user?.role || '').trim().toLowerCase();
+        if (user) {
+            if (role === 'student') {
+                navigate('/apply-instructor');
+                return;
+            }
+            if (role === 'instructor') {
+                navigate('/teacher-dashboard');
+                return;
+            }
+            if (role === 'admin') {
+                navigate('/admin-dashboard');
+                return;
+            }
         }
+        localStorage.setItem('applyInstructorIntent', 'true');
+        navigate('/login');
     };
 
     return (

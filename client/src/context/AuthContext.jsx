@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
@@ -6,9 +6,9 @@ const AuthContext = createContext();
 
 const normalizeRole = (role) => String(role || '').trim().toLowerCase();
 
-// ✅ FIXED BASE URL (ADDED /api)
+// ✅ FIXED BASE URL (WITH /api)
 const api = axios.create({
-    baseURL: `${import.meta.env.VITE_API_URL}/api`, // ✅ FIXED
+    baseURL: `${import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000'}/api`, // ✅ FIXED - with /api
     timeout: 10000,
 });
 
@@ -34,12 +34,12 @@ api.interceptors.response.use(
         console.error('Response:', error.response);
         
         if (error.response?.status === 401) {
-            console.warn('Session expired or unauthorized request (401). Clearing auth state...');
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            if (window.location.pathname !== '/login') {
-                window.location.href = '/login';
+            const reqUrl = error.config?.url || '';
+            if (reqUrl.includes('/users/login') || reqUrl.includes('/users/register')) {
+                return Promise.reject(error);
             }
+            console.warn('Session expired or unauthorized request (401). Clearing auth state...');
+            window.dispatchEvent(new CustomEvent('auth:unauthorized'));
         }
         return Promise.reject(error);
     }
@@ -58,6 +58,21 @@ export const AuthProvider = ({ children }) => {
     });
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [loading, setLoading] = useState(true);
+
+    const clearAuth = useCallback(() => {
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+    }, []);
+
+    useEffect(() => {
+        const onUnauthorized = () => {
+            clearAuth();
+        };
+        window.addEventListener('auth:unauthorized', onUnauthorized);
+        return () => window.removeEventListener('auth:unauthorized', onUnauthorized);
+    }, [clearAuth]);
 
     useEffect(() => {
         const initializeAuth = async () => {
@@ -98,14 +113,7 @@ export const AuthProvider = ({ children }) => {
         };
 
         initializeAuth();
-    }, []);
-
-    const clearAuth = () => {
-        setUser(null);
-        setToken(null);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-    };
+    }, [clearAuth]);
 
     const login = async (email, password) => {
         const response = await api.post('/users/login', { email, password });

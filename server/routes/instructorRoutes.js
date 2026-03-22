@@ -1,6 +1,6 @@
 import express from 'express';
 import { protect, authorize } from '../middleware/authMiddleware.js';
-import upload from '../middleware/upload.js';
+import resumeUpload from '../middleware/resumeUpload.js';
 import {
     submitApplication,
     downloadResume,
@@ -40,7 +40,7 @@ import {
 const router = express.Router();
 
 // Application Routes
-router.post('/apply', protect, upload.single('resume'), submitApplication);
+router.post('/apply', protect, resumeUpload.single('resume'), submitApplication);
 router.get('/my-application', protect, getMyApplication);
 
 // Resume file serving routes

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
@@ -16,7 +16,6 @@ const Register = () => {
 
     const { register } = useAuth();
     const navigate = useNavigate();
-    const location = useLocation();
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -90,21 +89,14 @@ const Register = () => {
             console.log('📤 Sending data to backend:', registerData);
             console.log('📤 Raw data being sent:', JSON.stringify(registerData, null, 2));
             
-            await register(registerData); // Send as object, not individual parameters
-            console.log('✅ Registration API call successful');
-            
-            // Show success message and redirect to login
+            await register(registerData);
             toast.success('Registration successful! Please login.');
-            
-            // Redirect to login page after successful registration
-            setTimeout(() => {
-                navigate('/login', { 
-                    state: { 
-                        message: 'Registration successful! Please login with your credentials.',
-                        registeredEmail: registerData.email 
-                    } 
-                });
-            }, 1500);
+            navigate('/login', {
+                state: {
+                    message: 'Registration successful! Please login with your credentials.',
+                    registeredEmail: registerData.email
+                }
+            });
         } catch (err) {
             console.error('❌ Registration error:', err);
             console.error('Error response:', err.response);

@@ -12,6 +12,10 @@ const instructorApplicationSchema = mongoose.Schema({
         type: String,
         required: true,
     },
+    mobile: {
+        type: String,
+        default: '',
+    },
     experience: {
         type: String,
         required: true,
@@ -44,8 +48,12 @@ const instructorApplicationSchema = mongoose.Schema({
         type: String,
     },
     resume: {
-        type: String, // Filename only
-    }
+        type: String, // Cloudinary secure_url (or legacy local filename)
+    },
+    resumeOriginalName: {
+        type: String,
+        default: '',
+    },
 }, {
     timestamps: true,
 });
