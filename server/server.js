@@ -39,38 +39,9 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-// Rate limiting (commented out for development speed)
-// app.use(generalLimiter);
-
-// ✅ FIXED CORS (PRODUCTION READY)
-app.use(cors({
-    origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        
-        // In development, allow all origins
-        if (process.env.NODE_ENV !== 'production') {
-            return callback(null, true);
-        }
-        
-        // In production, allow specific origins
-        const allowedOrigins = [
-            process.env.CLIENT_URL,
-            'https://your-vercel-domain.vercel.app',
-            'http://localhost:5173',
-            'http://localhost:3000'
-        ].filter(Boolean);
-        
-        if (allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// 🚀 ✅ FIXED CORS (FINAL WORKING)
+app.use(cors());
+app.options("*", cors());
 
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
