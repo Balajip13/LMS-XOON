@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { BookOpen, PlayCircle, FileText, CheckCircle, ChevronRight, Clock } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
-const Chapters = ({ enrollments = [] }) => {
+const Chapters = ({ courses = [] }) => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const courseId = queryParams.get('courseId');
 
-    // Find the currently selected course from enrollments
-    const activeEnrollment = enrollments.find(e => e.course?._id === courseId) || enrollments[0];
-    const selectedCourse = activeEnrollment?.course;
+    // Find the currently selected course from courses
+    const activeEnrollment = courses.find(c => c._id === courseId) || courses[0];
+    const selectedCourse = activeEnrollment;
 
     if (!selectedCourse) {
         return (

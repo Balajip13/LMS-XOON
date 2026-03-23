@@ -257,22 +257,22 @@ const CoursesRedirect = () => {
 // Helper components to inject context data into views
 const OverviewWithContext = () => {
   const context = useOutletContext();
-  return <Overview enrollments={context?.enrollments || []} />;
+  return <Overview courses={context?.courses || []} />;
 };
 
 const MyLearningWithContext = () => {
   const context = useOutletContext();
-  return <MyLearning enrollments={context?.enrollments || []} loading={false} />;
+  return <MyLearning courses={context?.courses || []} loading={false} />;
 };
 
 const ChaptersWithContext = () => {
   const context = useOutletContext();
-  return <Chapters enrollments={context?.enrollments || []} />;
+  return <Chapters courses={context?.courses || []} />;
 };
 
 const CertificatesWithContext = () => {
   const context = useOutletContext();
-  return <Certificates certificates={context?.certificates || []} enrollments={context?.enrollments || []} />;
+  return <Certificates certificates={context?.certificates || []} courses={context?.courses || []} />;
 };
 
 const PaymentsWithContext = () => {

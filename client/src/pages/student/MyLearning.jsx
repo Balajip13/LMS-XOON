@@ -3,11 +3,11 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { BookOpen, ArrowRight, Star, CheckCircle, Clock, Search, LayoutGrid } from 'lucide-react';
 import StudentCourseList from './StudentCourseList';
 
-const MyLearning = ({ enrollments = [] }) => {
+const MyLearning = ({ courses = [] }) => {
     const [searchQuery, setSearchQuery] = useState('');
 
-    const filteredEnrollments = enrollments.filter(e =>
-        !searchQuery.trim() || e.course?.title?.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredCourses = courses.filter(course =>
+        !searchQuery.trim() || course?.title?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
@@ -29,7 +29,7 @@ const MyLearning = ({ enrollments = [] }) => {
                 </div>
 
                 {/* Search Bar */}
-                {enrollments.length > 0 && (
+                {courses.length > 0 && (
                     <div style={{ position: 'relative', maxWidth: '480px' }}>
                         <Search size={16} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', pointerEvents: 'none' }} />
                         <input
@@ -55,16 +55,15 @@ const MyLearning = ({ enrollments = [] }) => {
                 )}
             </div>
 
-            {filteredEnrollments.length > 0 ? (
+            {filteredCourses.length > 0 ? (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2rem' }}>
-                    {filteredEnrollments.map((enrollment) => {
-                        const course = enrollment.course;
+                    {filteredCourses.map((course) => {
                         if (!course) return null;
-                        const progress = enrollment.progress || 0;
-                        const isCompleted = progress === 100;
+                        const progress = course.progress || 0;
+                        const isCompleted = course.isCompleted || progress === 100;
 
                         return (
-                            <div key={enrollment._id} style={{
+                            <div key={course.enrollmentId || course._id} style={{
                                 backgroundColor: 'var(--surface)',
                                 borderRadius: '16px',
                                 border: '1px solid var(--border)',

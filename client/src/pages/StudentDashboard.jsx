@@ -6,7 +6,7 @@ import { Outlet } from 'react-router-dom';
 
 const StudentDashboard = () => {
     const { user, token, refreshUser, api } = useAuth();
-    const [enrollments, setEnrollments] = useState([]);
+    const [courses, setCourses] = useState([]);
     const [payments, setPayments] = useState([]);
     const [certificates, setCertificates] = useState([]);
     const [announcements, setAnnouncements] = useState([]);
@@ -21,7 +21,9 @@ const StudentDashboard = () => {
                 api.get('/certificates/my-certificates'),
                 api.get('/announcements')
             ]);
-            setEnrollments(enrollRes.data);
+            console.log("Enrollments API:", enrollRes.data);
+            console.log("User ID:", user?._id);
+            setCourses(enrollRes.data?.courses || []);
             setPayments(paymentRes.data);
             setCertificates(certRes.data);
             setAnnouncements(announceRes.data);
@@ -102,7 +104,7 @@ const StudentDashboard = () => {
     // This component now just provides data and context to its child routes via Outlet context
     return <Outlet context={{
         user,
-        enrollments,
+        courses,
         payments,
         certificates,
         announcements,

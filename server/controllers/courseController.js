@@ -336,41 +336,59 @@ const deleteReview = async (req, res, next) => {
 // @route   GET /api/courses/enrolled
 // @access  Private
 const getEnrolledCourses = async (req, res, next) => {
-    console.log('[getEnrolledCourses] Hit by user:', req.user._id);
     try {
-        const user = await User.findById(req.user._id).populate({
-            path: 'enrolledCourses',
-            populate: [
-                { path: 'instructor', select: 'name profileImage' },
-                { path: 'category', select: 'name' }
-            ]
-        });
-        console.log('[getEnrolledCourses] User found:', user ? 'Yes' : 'No');
-        if (user) {
-            console.log('[getEnrolledCourses] Enrolled courses count:', user.enrolledCourses.length);
+        if (!req.user?._id) {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
 
-            // Fetch actual Enrollment records to get real progress
-            const enrollments = await Enrollment.find({ user: req.user._id });
+        // Primary source of truth: Enrollment documents (filtered by logged-in user)
+        console.log('[getEnrolledCourses] User ID:', req.user._id);
+        const enrollments = await Enrollment.find({ user: req.user._id })
+            .populate({
+                path: 'course',
+                populate: [
+                    { path: 'instructor', select: 'name profileImage' },
+                    { path: 'category', select: 'name' }
+                ]
+            })
+            .sort({ updatedAt: -1 });
 
-            // Map into the format expected by the frontend: { course: { ...courseData }, progress: X, updatedAt: date }
-            const enrollmentsData = user.enrolledCourses.map(course => {
-                const enrollmentRecord = enrollments.find(e => e.course.toString() === course._id.toString());
-                return {
-                    course: course,
-                    progress: enrollmentRecord ? enrollmentRecord.progress : 0,
-                    isCompleted: enrollmentRecord ? enrollmentRecord.isCompleted : false,
-                    updatedAt: enrollmentRecord ? enrollmentRecord.updatedAt : course.updatedAt
-                };
+        const coursesFromEnrollments = (enrollments || [])
+            .filter(e => e && e.course)
+            .map(e => ({
+                ...(e.course.toObject ? e.course.toObject() : e.course),
+                enrollmentId: e._id,
+                progress: e.progress || 0,
+                isCompleted: !!e.isCompleted,
+                updatedAt: e.updatedAt || e.course.updatedAt,
+            }));
+
+        // Fallback (legacy): if Enrollment docs are missing, use user's enrolledCourses array
+        if (coursesFromEnrollments.length === 0) {
+            const user = await User.findById(req.user._id).populate({
+                path: 'enrolledCourses',
+                populate: [
+                    { path: 'instructor', select: 'name profileImage' },
+                    { path: 'category', select: 'name' }
+                ]
             });
 
-            res.json(enrollmentsData);
-        } else {
-            res.status(404);
-            throw new Error('User not found');
+            const fallbackCourses = (user?.enrolledCourses || []).map(course => ({
+                ...(course.toObject ? course.toObject() : course),
+                enrollmentId: `fallback-${course._id}`,
+                progress: 0,
+                isCompleted: false,
+                updatedAt: course.updatedAt,
+            }));
+
+            console.log('[getEnrolledCourses] Enrollment fallback count:', fallbackCourses.length);
+            return res.json({ success: true, courses: fallbackCourses });
         }
+
+        console.log('[getEnrolledCourses] Enrolled courses count:', coursesFromEnrollments.length);
+        return res.json({ success: true, courses: coursesFromEnrollments });
     } catch (error) {
         console.error('[getEnrolledCourses] Error:', error.message);
-        console.error('[getEnrolledCourses] Stack:', error.stack);
         next(error);
     }
 };

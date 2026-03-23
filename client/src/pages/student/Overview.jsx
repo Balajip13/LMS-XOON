@@ -48,41 +48,41 @@ const MetricCard = ({ title, value, icon: Icon, color }) => (
 
 const Overview = () => {
     const { user } = useAuth();
-    const { enrollments = [], announcements = [], certificates = [] } = useOutletContext();
+    const { courses = [], announcements = [], certificates = [] } = useOutletContext();
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Filter enrollments based on search query
-    const filteredEnrollments = useMemo(() => {
-        if (!searchQuery.trim()) return enrollments;
+    // Filter courses based on search query
+    const filteredCourses = useMemo(() => {
+        if (!searchQuery.trim()) return courses;
         const query = searchQuery.toLowerCase();
-        return enrollments.filter(e =>
-            e.course?.title?.toLowerCase().includes(query) ||
-            e.course?.category?.toLowerCase().includes(query)
+        return courses.filter(c =>
+            c.title?.toLowerCase().includes(query) ||
+            c.category?.name?.toLowerCase().includes(query) || c.category?.toLowerCase().includes(query)
         );
-    }, [enrollments, searchQuery]);
+    }, [courses, searchQuery]);
 
     // Derived metrics
     // A course is complete if progress is 100, isCompleted is true, or they have a certificate for it.
-    const completedCourses = enrollments.filter(e => {
-        const hasCertificate = certificates.some(cert => cert.course?._id === e.course?._id || cert.course === e.course?._id);
-        return (e.progress || 0) === 100 || e.isCompleted || hasCertificate;
+    const completedCourses = courses.filter(c => {
+        const hasCertificate = certificates.some(cert => cert.course?._id === c._id || cert.course === c._id);
+        return (c.progress || 0) === 100 || c.isCompleted || hasCertificate;
     });
 
-    const inProgressCourses = enrollments.filter(e => {
-        const hasCertificate = certificates.some(cert => cert.course?._id === e.course?._id || cert.course === e.course?._id);
-        const progress = e.progress || 0;
-        const isCompleted = e.isCompleted || progress === 100 || hasCertificate;
+    const inProgressCourses = courses.filter(c => {
+        const hasCertificate = certificates.some(cert => cert.course?._id === c._id || cert.course === c._id);
+        const progress = c.progress || 0;
+        const isCompleted = c.isCompleted || progress === 100 || hasCertificate;
         return progress > 0 && !isCompleted;
     });
 
-    const totalEnrolled = enrollments.length;
+    const totalEnrolled = courses.length;
 
     // Latest active course for "Continue Learning"
     // Only pull from courses that are NOT fully completed
-    const latestCourse = enrollments
-        .filter(e => {
-            const hasCertificate = certificates.some(cert => cert.course?._id === e.course?._id || cert.course === e.course?._id);
-            return (e.progress || 0) < 100 && !e.isCompleted && !hasCertificate;
+    const latestCourse = courses
+        .filter(c => {
+            const hasCertificate = certificates.some(cert => cert.course?._id === c._id || cert.course === c._id);
+            return (c.progress || 0) < 100 && !c.isCompleted && !hasCertificate;
         })
         .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0];
 
@@ -156,13 +156,13 @@ const Overview = () => {
                         <Search size={20} color="var(--primary)" />
                         <h2 style={{ fontSize: '1.25rem', fontWeight: '700', margin: 0 }}>Search Results</h2>
                     </div>
-                    {filteredEnrollments.length > 0 ? (
+                    {filteredCourses.length > 0 ? (
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
-                            {filteredEnrollments.map((e, idx) => (
-                                <Link key={idx} to={`/course/${e.course?._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                            {filteredCourses.map((c, idx) => (
+                                <Link key={idx} to={`/course/${c._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                                     <div style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: '12px', backgroundColor: 'var(--surface-hover)' }}>
-                                        <p style={{ margin: 0, fontWeight: '700', fontSize: '0.95rem' }}>{e.course?.title}</p>
-                                        <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Progress: {e.progress}%</p>
+                                        <p style={{ margin: 0, fontWeight: '700', fontSize: '0.95rem' }}>{c.title}</p>
+                                        <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Progress: {c.progress}%</p>
                                     </div>
                                 </Link>
                             ))}
@@ -189,9 +189,9 @@ const Overview = () => {
                         }}>
                             <div style={{ position: 'relative', zIndex: 2 }}>
                                 <span style={{ backgroundColor: 'rgba(255,255,255,0.2)', padding: '0.4rem 1rem', borderRadius: '100px', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', color: '#ffffff' }}>Recently Accessed</span>
-                                <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: '0.5rem 0 0.25rem 0', color: '#ffffff' }}>{latestCourse.course?.title}</h2>
+                                <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: '0.5rem 0 0.25rem 0', color: '#ffffff' }}>{latestCourse.title}</h2>
                                 <p style={{ fontSize: '0.9rem', opacity: 0.9, marginBottom: '1.25rem', color: '#ffffff' }}>You've completed {latestCourse.progress}% of this course. Great job!</p>
-                                <Link to={`/course/${latestCourse.course?._id}`} className="btn" style={{ backgroundColor: '#ffffff', color: '#1e3a8a', fontWeight: '700', padding: '0.6rem 1.5rem', borderRadius: '12px', fontSize: '0.85rem', display: 'inline-block' }}>
+                                <Link to={`/course/${latestCourse._id}`} className="btn" style={{ backgroundColor: '#ffffff', color: '#1e3a8a', fontWeight: '700', padding: '0.6rem 1.5rem', borderRadius: '12px', fontSize: '0.85rem', display: 'inline-block' }}>
                                     Continue Learning
                                 </Link>
                             </div>
@@ -206,14 +206,14 @@ const Overview = () => {
                             <h2 style={{ fontSize: '1.25rem', fontWeight: '700', margin: 0 }}>Recent Activity</h2>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            {enrollments.length > 0 ? enrollments.slice(0, 3).map((e, idx) => (
+                            {courses.length > 0 ? courses.slice(0, 3).map((c, idx) => (
                                 <div key={idx} style={{ padding: '1.25rem', backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '1rem' }}>
                                     <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: idx === 0 ? 'var(--primary)' : 'var(--border)' }} />
                                     <div style={{ flex: 1 }}>
-                                        <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: '600' }}>Updated progress in {e.course?.title}</p>
-                                        <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{new Date(e.updatedAt).toLocaleDateString()}</p>
+                                        <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: '600' }}>Updated progress in {c.title}</p>
+                                        <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{new Date(c.updatedAt).toLocaleDateString()}</p>
                                     </div>
-                                    <span style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--primary)' }}>+{e.progress}%</span>
+                                    <span style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--primary)' }}>+{c.progress}%</span>
                                 </div>
                             )) : (
                                 <div style={{ textAlign: 'center', padding: '2rem', backgroundColor: 'var(--surface)', borderRadius: '16px', border: '1px dotted var(--border)' }}>
