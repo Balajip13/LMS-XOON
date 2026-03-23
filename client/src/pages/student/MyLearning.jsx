@@ -62,6 +62,7 @@ const MyLearning = ({ courses = [] }) => {
                         const progress = course.progress || 0;
                         const isCompleted = course.isCompleted || progress === 100;
 
+                        console.log("Course:", course);
                         return (
                             <div key={course.enrollmentId || course._id} style={{
                                 backgroundColor: 'var(--surface)',
@@ -76,7 +77,7 @@ const MyLearning = ({ courses = [] }) => {
                                 <div style={{ height: '180px', overflow: 'hidden', position: 'relative' }}>
                                     <Link to={`/student/course/${course?._id}/learn`}>
                                         <img
-                                            src={course.thumbnail || '/placeholder.jpg'}
+                                            src={course.thumbnailUrl || "/default-course.png"}
                                             alt={course.title}
                                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                         />
@@ -152,16 +153,8 @@ const MyLearning = ({ courses = [] }) => {
                                             className="btn btn-primary"
                                             style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', fontWeight: '600', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                                         >
-                                            {isCompleted ? 'Review Course' : 'Resume'} <ArrowRight size={16} />
+                                            {isCompleted ? 'Review Course' : 'Resume'}
                                         </Link>
-                                        {isCompleted && (
-                                            <button
-                                                className="btn btn-outline"
-                                                style={{ padding: '0.75rem', borderRadius: '8px', color: 'var(--primary)', borderColor: 'var(--primary)' }}
-                                            >
-                                                <Star size={18} />
-                                            </button>
-                                        )}
                                     </div>
                                 </div>
                             </div>

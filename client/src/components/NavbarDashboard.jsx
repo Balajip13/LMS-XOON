@@ -49,23 +49,25 @@ const NavbarDashboard = ({ toggleSidebar, showLogo = false, hideMenu = false }) 
                     {theme === 'dark' ? <Sun size={19} /> : <Moon size={19} />}
                 </button>
 
-                {/* User Info */}
-                <div className="navbar-user-info">
-                    <div className="navbar-user-avatar" style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--primary)', color: '#fff', fontWeight: 'bold' }}>
-                        {user?.profilePic ? (
-                            <img
-                                src={user.profilePic}
-                                alt={user?.name}
-                                style={{ width: '40px', height: '40px', minWidth: '40px', minHeight: '40px', maxWidth: '40px', maxHeight: '40px', objectFit: 'cover', borderRadius: '50%', overflow: 'hidden', display: 'block', margin: 0, padding: 0 }}
-                                onError={(e) => {
-                                    e.target.src = '/default-avatar.png';
-                                }}
-                            />
-                        ) : (
-                            <img src="/default-avatar.png" alt="Default Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        )}
+                {/* User Info (Hidden for Admin) */}
+                {user?.role !== 'admin' && (
+                    <div className="navbar-user-info">
+                        <div className="navbar-user-avatar" style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--primary)', color: '#fff', fontWeight: 'bold' }}>
+                            {user?.profilePic ? (
+                                <img
+                                    src={user.profilePic}
+                                    alt={user?.name}
+                                    style={{ width: '40px', height: '40px', minWidth: '40px', minHeight: '40px', maxWidth: '40px', maxHeight: '40px', objectFit: 'cover', borderRadius: '50%', overflow: 'hidden', display: 'block', margin: 0, padding: 0 }}
+                                    onError={(e) => {
+                                        e.target.src = '/default-avatar.png';
+                                    }}
+                                />
+                            ) : (
+                                <img src="/default-avatar.png" alt="Default Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            )}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Logout */}
                 <button
