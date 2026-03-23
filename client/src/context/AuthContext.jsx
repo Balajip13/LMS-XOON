@@ -8,8 +8,9 @@ const normalizeRole = (role) => String(role || '').trim().toLowerCase();
 
 // ✅ FIXED BASE URL (WITH /api)
 const api = axios.create({
-    baseURL: `${import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000'}/api`, // ✅ FIXED - with /api
-    timeout: 10000,
+    baseURL: `${import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000'}/api`,
+    timeout: 300000,
+    withCredentials: true,
 });
 
 // Add a request interceptor to add the JWT token to headers

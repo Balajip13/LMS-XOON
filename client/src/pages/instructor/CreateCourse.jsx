@@ -159,10 +159,12 @@ const CreateCourse = () => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
-            if (res.data.success) {
+            if (res.data && res.data.url) {
                 console.log("Upload response:", res.data);
                 updateLesson(chapterId, lessonId, 'videoUrl', res.data.url);
                 toast.success('Video uploaded successfully');
+            } else {
+                throw new Error("Invalid response from server");
             }
         } catch (error) {
             toast.error(error.response?.data?.message || 'Video upload failed');
@@ -183,10 +185,12 @@ const CreateCourse = () => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
-            if (res.data.success) {
+            if (res.data && res.data.url) {
                 console.log("Upload response:", res.data);
                 setFormData(prev => ({ ...prev, videoUrl: res.data.url }));
                 toast.success('Preview video uploaded successfully');
+            } else {
+                throw new Error("Invalid response from server");
             }
         } catch (error) {
             toast.error(error.response?.data?.message || 'Preview video upload failed');
