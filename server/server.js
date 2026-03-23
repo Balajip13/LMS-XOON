@@ -55,8 +55,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // DB
-connectDB();
-createDefaultAdmin();
+// Initialization moved to startServer()
 
 // Static files
 const __dirname = path.resolve();
@@ -111,6 +110,17 @@ app.use(errorHandler);
 // Server
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-});
+const startServer = async () => {
+    try {
+        await connectDB();
+        await createDefaultAdmin();
+        app.listen(PORT, () => {
+            console.log(`🚀 Server running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error("Failed to start server:", error);
+        process.exit(1);
+    }
+};
+
+startServer();
