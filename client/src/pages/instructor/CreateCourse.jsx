@@ -21,8 +21,8 @@ const CreateCourse = () => {
         price: '',
         originalPrice: '',
         discountPercentage: 0,
-        thumbnail: null,
-        previewVideo: null,
+        thumbnailUrl: null,
+        videoUrl: null,
         chapters: [
             { id: Date.now(), title: '', lessons: [{ id: Date.now() + 1, title: '', video: null }] }
         ]
@@ -55,8 +55,8 @@ const CreateCourse = () => {
                         price: courseData.price || '',
                         originalPrice: courseData.originalPrice || '',
                         discountPercentage: courseData.discountPercentage || 0,
-                        thumbnail: null, // Keep current thumbnail unless changed
-                        previewVideo: courseData.previewVideo || null,
+                        thumbnailUrl: courseData.thumbnailUrl || null,
+                        videoUrl: courseData.videoUrl || null,
                         chapters: courseData.chapters ? courseData.chapters.map(c => ({
                             id: c._id || Date.now() + Math.random(),
                             title: c.title,
@@ -68,8 +68,8 @@ const CreateCourse = () => {
                         })) : []
                     });
 
-                    if (courseData.thumbnail) {
-                        setThumbnailPreview(courseData.thumbnail);
+                    if (courseData.thumbnailUrl) {
+                        setThumbnailPreview(courseData.thumbnailUrl);
                     }
                 } else if (fetchedCategories.length > 0) {
                     setFormData(prev => ({ ...prev, category: fetchedCategories[0]._id }));
@@ -91,7 +91,7 @@ const CreateCourse = () => {
     const handleThumbnailChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setFormData(prev => ({ ...prev, thumbnail: file }));
+            setFormData(prev => ({ ...prev, thumbnailUrl: file }));
             setThumbnailPreview(URL.createObjectURL(file));
         }
     };
@@ -160,6 +160,7 @@ const CreateCourse = () => {
             });
 
             if (res.data.success) {
+                console.log("Upload response:", res.data);
                 updateLesson(chapterId, lessonId, 'videoUrl', res.data.url);
                 toast.success('Video uploaded successfully');
             }
@@ -183,7 +184,8 @@ const CreateCourse = () => {
             });
 
             if (res.data.success) {
-                setFormData(prev => ({ ...prev, previewVideo: res.data.url }));
+                console.log("Upload response:", res.data);
+                setFormData(prev => ({ ...prev, videoUrl: res.data.url }));
                 toast.success('Preview video uploaded successfully');
             }
         } catch (error) {
@@ -216,12 +218,12 @@ const CreateCourse = () => {
             data.append('discountPercentage', formData.discountPercentage);
             data.append('instructorName', user?.name || '');
 
-            if (formData.thumbnail) {
-                data.append('thumbnail', formData.thumbnail);
+            if (formData.thumbnailUrl) {
+                data.append('thumbnailUrl', formData.thumbnailUrl);
             }
 
-            if (formData.previewVideo) {
-                data.append('previewVideo', formData.previewVideo);
+            if (formData.videoUrl) {
+                data.append('videoUrl', formData.videoUrl);
             }
 
             // Simple structure for chapters/lessons to be handled by backend
@@ -369,7 +371,7 @@ const CreateCourse = () => {
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         setThumbnailPreview(null);
-                                                        setFormData(prev => ({ ...prev, thumbnail: null }));
+                                                        setFormData(prev => ({ ...prev, thumbnailUrl: null }));
                                                     }}
                                                     style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(0,0,0,0.5)', color: 'white', border: 'none', borderRadius: '50%', padding: '5px' }}
                                                 >
@@ -532,16 +534,16 @@ const CreateCourse = () => {
                             <div className="form-grid">
                                 <div className="form-group-modern" style={{ gridColumn: 'span 2' }}>
                                     <label className="label-modern">Upload a short preview video to attract students</label>
-                                    <div className="thumbnail-upload-box" style={{ marginTop: '0.5rem', minHeight: '160px', border: formData.previewVideo ? '1px solid var(--border)' : '2px dashed var(--border)' }}>
+                                    <div className="thumbnail-upload-box" style={{ marginTop: '0.5rem', minHeight: '160px', border: formData.videoUrl ? '1px solid var(--border)' : '2px dashed var(--border)' }}>
                                         {uploadingVideos['preview'] ? (
                                             <div className="thumbnail-placeholder" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
                                                 <Loader2 size={40} className="animate-spin" color="var(--primary)" />
                                                 <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Uploading video...</p>
                                             </div>
-                                        ) : formData.previewVideo ? (
+                                        ) : formData.videoUrl ? (
                                             <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: '200px', backgroundColor: '#000', borderRadius: '12px', overflow: 'hidden' }}>
                                                 <video
-                                                    src={formData.previewVideo}
+                                                    src={formData.videoUrl}
                                                     controls
                                                     style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                                                 />
@@ -549,7 +551,7 @@ const CreateCourse = () => {
                                                     type="button"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        setFormData(prev => ({ ...prev, previewVideo: null }));
+                                                        setFormData(prev => ({ ...prev, videoUrl: null }));
                                                     }}
                                                     style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(0,0,0,0.5)', color: 'white', border: 'none', borderRadius: '50%', padding: '5px', zIndex: 10, cursor: 'pointer' }}
                                                     title="Remove preview video"

@@ -199,7 +199,7 @@ const InstructorCourseOverview = () => {
                     <div className="card" style={{ padding: '0.75rem' }}>
                         <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: '8px', overflow: 'hidden', marginBottom: '1.25rem' }}>
                             <img
-                                src={course.thumbnail}
+                                src={course.thumbnailUrl || course.thumbnail}
                                 alt={course.title}
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 onError={(e) => { e.target.src = 'https://via.placeholder.com/640x360?text=No+Thumbnail'; }}

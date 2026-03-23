@@ -100,7 +100,7 @@ const createCourse = async (req, res) => {
         discountPercentage,
         instructorName,
         structure, // JSON string of chapters and lessons
-        previewVideo
+        videoUrl
     } = req.body;
 
     try {
@@ -114,7 +114,7 @@ const createCourse = async (req, res) => {
             title: title || 'New Course',
             instructor: req.user._id,
             instructorName: req.user.name || instructorName,
-            thumbnail: thumbnailPath,
+            thumbnailUrl: thumbnailPath,
             description: description || 'New course description...',
             category: category, // Expecting ObjectId
             price: price || 0,
@@ -124,10 +124,11 @@ const createCourse = async (req, res) => {
             rating: 0,
             isPublished: false,
             status: 'pending',
-            previewVideo: previewVideo || ''
+            videoUrl: videoUrl || ''
         });
 
         const createdCourse = await course.save();
+        console.log("Saved course:", createdCourse);
 
         // Handle curriculum structure if provided
         if (structure) {
@@ -174,11 +175,12 @@ const updateCourse = async (req, res) => {
         description,
         price,
         thumbnail,
+        thumbnailUrl,
         category,
         videos,
         isPublished,
         discount,
-        previewVideo
+        videoUrl
     } = req.body;
 
     const course = await Course.findById(req.params.id);
@@ -194,12 +196,12 @@ const updateCourse = async (req, res) => {
         course.price = price !== undefined ? price : course.price;
         course.originalPrice = req.body.originalPrice !== undefined ? req.body.originalPrice : (course.originalPrice || course.price);
         course.discountPercentage = req.body.discountPercentage !== undefined ? req.body.discountPercentage : (course.discountPercentage || 0);
-        course.thumbnail = thumbnail || course.thumbnail;
+        course.thumbnailUrl = thumbnailUrl || thumbnail || course.thumbnailUrl;
         course.category = category || course.category;
         course.videos = videos || course.videos;
         course.isPublished = isPublished !== undefined ? isPublished : course.isPublished;
-        if (previewVideo !== undefined) {
-            course.previewVideo = previewVideo;
+        if (videoUrl !== undefined) {
+            course.videoUrl = videoUrl;
         }
 
         // Admin only fields
@@ -232,6 +234,7 @@ const updateCourse = async (req, res) => {
         }
 
         const updatedCourse = await course.save();
+        console.log("Saved course:", updatedCourse);
         res.json(updatedCourse);
     } else {
         res.status(404);

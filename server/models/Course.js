@@ -36,12 +36,12 @@ const courseSchema = mongoose.Schema({
         type: Number,
         default: 0,
     },
-    thumbnail: {
+    thumbnailUrl: {
         type: String, // URL
         required: true,
     },
-    previewVideo: {
-        type: String, // YouTube URL or similar
+    videoUrl: {
+        type: String, // URL
     },
     category: {
         type: mongoose.Schema.Types.ObjectId,

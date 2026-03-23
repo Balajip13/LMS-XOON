@@ -97,7 +97,7 @@ const InstructorCourses = () => {
                         <div key={course._id} className="instructor-course-card animate-in">
                             <div className="course-card-image">
                                 <img
-                                    src={course.thumbnail}
+                                    src={course.thumbnailUrl || course.thumbnail}
                                     alt={course.title}
                                     onError={(e) => { e.target.src = 'https://via.placeholder.com/600x400?text=No+Thumbnail'; }}
                                 />

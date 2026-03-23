@@ -464,7 +464,7 @@ const CourseDetail = ({ enrollments = [], isPlayerMode = false }) => {
 
     const handleLessonClick = (lesson) => {
         setCurrentLesson(lesson);
-        setCurrentVideo(lesson.videoUrl || course.previewVideo);
+        setCurrentVideo(lesson.videoUrl || course.videoUrl);
         lastClockTimeRef.current = 0;
         timeAccumulatorRef.current = 0;
     };
@@ -1083,20 +1083,22 @@ const CourseDetail = ({ enrollments = [], isPlayerMode = false }) => {
                             {/* Video Preview */}
                             <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', backgroundColor: '#000' }}>
                                 {showPreview ? (
-                                    course.previewVideo?.includes('youtube.com') || course.previewVideo?.includes('youtu.be') ? (
-                                        <iframe
-                                            src={course.previewVideo.replace('watch?v=', 'embed/')}
-                                            title="Promo"
-                                            allow="autoplay; encrypted-media"
-                                            allowFullScreen
-                                            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                                        />
+                                    course.videoUrl?.includes('youtube.com') || course.videoUrl?.includes('youtu.be') ? (
+                                        <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%', borderRadius: '12px', overflow: 'hidden' }}>
+                                            <iframe
+                                                src={course.videoUrl.replace('watch?v=', 'embed/')}
+                                                title="Preview"
+                                                allow="autoplay; encrypted-media"
+                                                allowFullScreen
+                                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                                            />
+                                        </div>
                                     ) : (
-                                        <video src={course.previewVideo} controls autoPlay style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain' }} />
+                                        <video src={course.videoUrl} controls autoPlay style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain' }} />
                                     )
                                 ) : (
                                     <div style={{ position: 'relative', width: '100%', height: '100%', cursor: 'pointer' }} onClick={() => setShowPreview(true)}>
-                                        <img src={course.thumbnail} alt="Thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} />
+                                        <img src={course.thumbnailUrl || course.thumbnail} alt="Thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} />
                                         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
                                             <div style={{
                                                 width: isMobile ? 48 : 64,

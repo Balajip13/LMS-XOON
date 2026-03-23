@@ -206,9 +206,9 @@ const AdminCourses = () => {
                                     <tr key={course._id}>
                                         <td data-label="Course Identity">
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                                {course.thumbnail ? (
+                                                {course.thumbnailUrl || course.thumbnail ? (
                                                     <img
-                                                        src={course.thumbnail}
+                                                        src={course.thumbnailUrl || course.thumbnail}
                                                         alt=""
                                                         style={{ width: '60px', height: '40px', borderRadius: '8px', objectFit: 'cover', boxShadow: 'var(--shadow-sm)' }}
                                                     />

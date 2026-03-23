@@ -292,23 +292,23 @@ const StudentCourseDetailPage = () => {
                     }}>
                         {/* Video Preview Thumbnail */}
                         <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', backgroundColor: '#1c1d1f', cursor: 'pointer', overflow: 'hidden' }}
-                            onClick={() => course.previewVideo && setShowPreview(true)}>
-                            {showPreview && course.previewVideo ? (
-                                course.previewVideo.includes('youtube') || course.previewVideo.includes('youtu.be') ? (
+                            onClick={() => course.videoUrl && setShowPreview(true)}>
+                            {showPreview && course.videoUrl ? (
+                                course.videoUrl.includes('youtube') || course.videoUrl.includes('youtu.be') ? (
                                     <iframe
-                                        src={course.previewVideo.replace('watch?v=', 'embed/')}
+                                        src={course.videoUrl.replace('watch?v=', 'embed/')}
                                         title="Preview"
                                         allow="autoplay; encrypted-media"
                                         allowFullScreen
                                         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }}
                                     />
                                 ) : (
-                                    <video src={course.previewVideo} controls autoPlay style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                    <video src={course.videoUrl} controls autoPlay style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                                 )
                             ) : (
                                 <>
                                     <img
-                                        src={course.thumbnail}
+                                        src={course.thumbnailUrl || course.thumbnail}
                                         alt={course.title}
                                         style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }}
                                     />
