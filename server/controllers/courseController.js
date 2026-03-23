@@ -1,3 +1,8 @@
+import Course from '../models/Course.js';
+import User from '../models/User.js';
+import Review from '../models/Review.js';
+import Chapter from '../models/Chapter.js';
+import Lesson from '../models/Lesson.js';
 import Enrollment from '../models/Enrollment.js';
 import cloudinary from '../config/cloudinary.js';
 
