@@ -12,20 +12,20 @@ import {
 } from '../controllers/courseController.js';
 import { getCourseQuizForStudent, submitQuizAttempt } from '../controllers/quizController.js';
 import { protect, protectOptional, authorize } from '../middleware/authMiddleware.js';
-import courseUpload from '../middleware/courseUpload.js';
+import courseUpload, { courseUploadFields } from '../middleware/courseUpload.js';
 
 const router = express.Router();
 
 router.route('/')
     .get(protectOptional, getCourses)
-    .post(protect, authorize('admin', 'instructor'), courseUpload.single('thumbnailUrl'), createCourse);
+    .post(protect, authorize('admin', 'instructor'), courseUploadFields, createCourse);
 
 router.get('/enrolled', protect, getEnrolledCourses);
 
 router
     .route('/:id')
     .get(getCourseById)
-    .put(protect, authorize('admin', 'instructor'), courseUpload.single('thumbnailUrl'), updateCourse)
+    .put(protect, authorize('admin', 'instructor'), courseUploadFields, updateCourse)
     .delete(protect, authorize('admin'), deleteCourse);
 router.post('/:id/enroll', protect, enrollCourse);
 

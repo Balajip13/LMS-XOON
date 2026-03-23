@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    if (file.fieldname === 'thumbnail' || file.fieldname === 'thumbnailUrl') {
+    if (file.fieldname === 'thumbnail') {
         if (!file.mimetype.startsWith('image/')) {
             return cb(new Error('Please upload an image'), false);
         }
@@ -34,7 +34,12 @@ const fileFilter = (req, file, cb) => {
 const courseUpload = multer({
     storage,
     fileFilter,
-    limits: { fileSize: 100 * 1024 * 1024 } // 100 MB for videos
+    limits: { fileSize: 100 * 1024 * 1024 } // 100 MB
 });
+
+export const courseUploadFields = courseUpload.fields([
+    { name: 'thumbnail', maxCount: 1 },
+    { name: 'video', maxCount: 1 }
+]);
 
 export default courseUpload;

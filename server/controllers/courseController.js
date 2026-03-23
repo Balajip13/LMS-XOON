@@ -1,9 +1,5 @@
-import Course from '../models/Course.js';
-import User from '../models/User.js';
-import Review from '../models/Review.js';
-import Chapter from '../models/Chapter.js';
-import Lesson from '../models/Lesson.js';
 import Enrollment from '../models/Enrollment.js';
+import cloudinary from '../config/cloudinary.js';
 
 // @desc    Fetch all courses
 // @route   GET /api/courses
@@ -105,9 +101,33 @@ const createCourse = async (req, res) => {
 
     try {
         let thumbnailPath = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop';
+        let finalVideoUrl = videoUrl || '';
 
-        if (req.file) {
-            thumbnailPath = req.file.path;
+        // Handle File Uploads via Cloudinary
+        if (req.files) {
+            console.log("Files received:", Object.keys(req.files));
+            
+            // 1. Handle Thumbnail
+            const thumbnailFile = req.files['thumbnail']?.[0];
+            if (thumbnailFile) {
+                console.log("Uploading thumbnail to Cloudinary:", thumbnailFile.path);
+                const result = await cloudinary.uploader.upload(thumbnailFile.path, {
+                    resource_type: 'image',
+                    folder: 'xoon_lms/thumbnails'
+                });
+                thumbnailPath = result.secure_url;
+            }
+
+            // 2. Handle Video
+            const videoFile = req.files['video']?.[0];
+            if (videoFile) {
+                console.log("Uploading video to Cloudinary:", videoFile.path);
+                const result = await cloudinary.uploader.upload(videoFile.path, {
+                    resource_type: 'video',
+                    folder: 'xoon_lms/videos'
+                });
+                finalVideoUrl = result.secure_url;
+            }
         }
 
         const course = new Course({
@@ -124,7 +144,7 @@ const createCourse = async (req, res) => {
             rating: 0,
             isPublished: false,
             status: 'pending',
-            videoUrl: videoUrl || ''
+            videoUrl: finalVideoUrl
         });
 
         const createdCourse = await course.save();
@@ -196,17 +216,38 @@ const updateCourse = async (req, res) => {
         course.price = price !== undefined ? price : course.price;
         course.originalPrice = req.body.originalPrice !== undefined ? req.body.originalPrice : (course.originalPrice || course.price);
         course.discountPercentage = req.body.discountPercentage !== undefined ? req.body.discountPercentage : (course.discountPercentage || 0);
-        if (req.file) {
-            course.thumbnailUrl = req.file.path;
-        } else {
+        // Handle File Updates via Cloudinary
+        if (req.files) {
+            const thumbnailFile = req.files['thumbnail']?.[0];
+            if (thumbnailFile) {
+                const result = await cloudinary.uploader.upload(thumbnailFile.path, {
+                    resource_type: 'image',
+                    folder: 'xoon_lms/thumbnails'
+                });
+                course.thumbnailUrl = result.secure_url;
+            }
+
+            const videoFile = req.files['video']?.[0];
+            if (videoFile) {
+                const result = await cloudinary.uploader.upload(videoFile.path, {
+                    resource_type: 'video',
+                    folder: 'xoon_lms/videos'
+                });
+                course.videoUrl = result.secure_url;
+            }
+        }
+
+        // Falls back to body fields if no files provided
+        if (!req.files || !req.files['thumbnail']) {
             course.thumbnailUrl = thumbnailUrl || thumbnail || course.thumbnailUrl;
         }
-        course.category = category || course.category;
-        course.videos = videos || course.videos;
-        course.isPublished = isPublished !== undefined ? isPublished : course.isPublished;
-        if (videoUrl !== undefined) {
-            course.videoUrl = videoUrl;
+        if (!req.files || !req.files['video']) {
+            if (videoUrl !== undefined) {
+                course.videoUrl = videoUrl;
+            }
         }
+
+        course.category = category || course.category;
 
         // Admin only fields
         if (req.user.role === 'admin') {

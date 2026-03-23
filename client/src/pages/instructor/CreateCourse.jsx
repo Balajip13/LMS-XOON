@@ -222,11 +222,15 @@ const CreateCourse = () => {
             data.append('discountPercentage', formData.discountPercentage);
             data.append('instructorName', user?.name || '');
 
-            if (formData.thumbnailUrl) {
+            if (formData.thumbnailUrl instanceof File) {
+                data.append('thumbnail', formData.thumbnailUrl);
+            } else if (formData.thumbnailUrl) {
                 data.append('thumbnailUrl', formData.thumbnailUrl);
             }
 
-            if (formData.videoUrl) {
+            if (formData.videoUrl instanceof File) {
+                data.append('video', formData.videoUrl);
+            } else if (formData.videoUrl) {
                 data.append('videoUrl', formData.videoUrl);
             }
 
