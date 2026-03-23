@@ -39,35 +39,23 @@ const loginUser = asyncHandler(async (req, res) => {
 
     // Find user
     const user = await User.findOne({ email }).select('+password');
-    
-    if (!user) {
-        return res.status(401).json({
-            success: false,
-            message: 'Invalid email or password',
-            error: 'INVALID_CREDENTIALS'
-        });
+    let isMatch = false;
+
+    console.log("Login email:", email);
+    console.log("User found:", user);
+
+    if (user) {
+        try {
+            isMatch = await bcrypt.compare(password, user.password);
+        } catch (error) {
+            console.error('[Auth] Password compare error:', error?.message);
+        }
     }
 
-    // Check password
-    try {
-        console.log("Entered password:", password);
-        console.log("Stored password:", user.password);
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log("Password match:", isMatch);
 
-        if (!isPasswordValid) {
-            return res.status(401).json({
-                success: false,
-                message: 'Invalid email or password',
-                error: 'INVALID_CREDENTIALS'
-            });
-        }
-    } catch (error) {
-        console.error('[Auth] Password compare error:', error?.message);
-        return res.status(500).json({
-            success: false,
-            message: 'Authentication error',
-            error: 'PASSWORD_COMPARE_ERROR'
-        });
+    if (!user || !isMatch) {
+        return res.status(401).json({ message: "Invalid email or password" });
     }
 
     // Check if user is blocked

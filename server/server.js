@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import connectDB from './config/db.js';
+import createDefaultAdmin from './utils/seedAdmin.js';
 import path from 'path';
 import fs from 'fs';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
@@ -55,6 +56,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // DB
 connectDB();
+createDefaultAdmin();
 
 // Static files
 const __dirname = path.resolve();
