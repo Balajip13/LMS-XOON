@@ -50,6 +50,8 @@ const loginUser = asyncHandler(async (req, res) => {
 
     // Check password
     try {
+        console.log("Entered password:", password);
+        console.log("Stored password:", user.password);
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
