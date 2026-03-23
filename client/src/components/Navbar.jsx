@@ -90,17 +90,15 @@ const Navbar = () => {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }} className="hidden md:flex">
                                     <div style={{ position: 'relative' }}>
-                                        {user?.profileImage ? (
+                                        {user?.profilePic ? (
                                             <img
-                                                src={`${user.profileImage.split('?')[0]}${user.profileImage.includes('?') ? '&' : '?'}t=${new Date(user.updatedAt || Date.now()).getTime()}`}
+                                                src={user.profilePic}
                                                 alt={user.name}
                                                 style={{ width: '35px', height: '35px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)' }}
                                                 onError={(e) => { e.target.src = '/default-avatar.png'; }}
                                             />
                                         ) : (
-                                            <div style={{ width: '35px', height: '35px', borderRadius: '50%', backgroundColor: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.8rem' }}>
-                                                {user.name.charAt(0).toUpperCase()}
-                                            </div>
+                                            <img src="/default-avatar.png" alt="Default Avatar" style={{ width: '35px', height: '35px', borderRadius: '50%', objectFit: 'cover' }} />
                                         )}
                                     </div>
                                     <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text)' }}>{user.name}</span>

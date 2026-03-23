@@ -46,7 +46,7 @@ export const getQuizzes = async (req, res, next) => {
 
         const quizzes = await Quiz.find(query)
             .populate('course', 'title')
-            .populate('attempts.student', 'name email profileImage')
+            .populate('attempts.student', 'name email profilePic')
             .sort({ createdAt: -1 });
 
         res.json({ success: true, data: quizzes });

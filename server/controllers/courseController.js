@@ -347,7 +347,7 @@ const getEnrolledCourses = async (req, res, next) => {
             .populate({
                 path: 'course',
                 populate: [
-                    { path: 'instructor', select: 'name profileImage' },
+                    { path: 'instructor', select: 'name profilePic' },
                     { path: 'category', select: 'name' }
                 ]
             })
@@ -368,7 +368,7 @@ const getEnrolledCourses = async (req, res, next) => {
             const user = await User.findById(req.user._id).populate({
                 path: 'enrolledCourses',
                 populate: [
-                    { path: 'instructor', select: 'name profileImage' },
+                    { path: 'instructor', select: 'name profilePic' },
                     { path: 'category', select: 'name' }
                 ]
             });

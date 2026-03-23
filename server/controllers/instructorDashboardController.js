@@ -90,14 +90,14 @@ export const getDashboardOverview = async (req, res, next) => {
         const recentEnrollments = await Enrollment.find({ course: { $in: courseIds } })
             .sort({ createdAt: -1 })
             .limit(5)
-            .populate('user', 'name profileImage')
+            .populate('user', 'name profilePic')
             .populate('course', 'title');
 
         // 6. Recent Reviews
         const recentReviews = await Review.find({ course: { $in: courseIds } })
             .sort({ createdAt: -1 })
             .limit(5)
-            .populate('user', 'name profileImage')
+            .populate('user', 'name profilePic')
             .populate('course', 'title');
 
         res.json({
@@ -117,7 +117,7 @@ export const getDashboardOverview = async (req, res, next) => {
                     student: e.user?.name || 'Unknown',
                     course: e.course?.title || 'Unknown',
                     date: e.createdAt,
-                    avatar: e.user?.profileImage
+                    avatar: e.user?.profilePic
                 })),
                 recentReviews: recentReviews.map(r => ({
                     id: r._id,
@@ -126,7 +126,7 @@ export const getDashboardOverview = async (req, res, next) => {
                     rating: r.rating,
                     comment: r.comment,
                     date: r.createdAt,
-                    avatar: r.user?.profileImage
+                    avatar: r.user?.profilePic
                 }))
             }
         });
@@ -223,7 +223,7 @@ export const getInstructorStudents = async (req, res, next) => {
                 id: e.studentData._id,
                 name: e.studentData.name,
                 email: e.studentData.email,
-                avatar: e.studentData.profileImage,
+                avatar: e.studentData.profilePic,
                 course: e.courseData.title,
                 enrollmentDate: e.createdAt,
                 progress: e.progress,
@@ -334,7 +334,7 @@ export const getInstructorReviews = async (req, res, next) => {
         }
 
         const reviews = await Review.find({ course: { $in: courseIds } })
-            .populate('user', 'name profileImage')
+            .populate('user', 'name profilePic')
             .populate('course', 'title')
             .sort({ createdAt: -1 });
 
@@ -360,7 +360,7 @@ export const getInstructorReviews = async (req, res, next) => {
                 reviews: reviews.map(r => ({
                     id: r._id,
                     student: r.user?.name || 'Unknown Student',
-                    avatar: r.user?.profileImage,
+                    avatar: r.user?.profilePic,
                     course: r.course?.title || 'Deleted Course',
                     rating: r.rating,
                     comment: r.comment,

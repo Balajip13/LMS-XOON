@@ -198,18 +198,17 @@ const AdminUsers = () => {
                                         <td>
                                             <div className="user-identity-cell">
                                                 <div className={`user-avatar-initials ${user.role}`} style={{ overflow: 'hidden', padding: 0 }}>
-                                                    {user.profileImage ? (
+                                                    {user.profilePic ? (
                                                         <img
-                                                            src={`${user.profileImage.split('?')[0]}${user.profileImage.includes('?') ? '&' : '?'}t=${new Date(user.updatedAt || Date.now()).getTime()}`}
+                                                            src={user.profilePic}
                                                             alt={user.name}
                                                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                                             onError={(e) => {
-                                                                e.target.style.display = 'none';
-                                                                e.target.parentElement.innerText = user.name?.charAt(0).toUpperCase() || 'U';
+                                                                e.target.src = '/default-avatar.png';
                                                             }}
                                                         />
                                                     ) : (
-                                                        user.name?.charAt(0).toUpperCase() || 'U'
+                                                        <img src="/default-avatar.png" alt="Default Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                                     )}
                                                 </div>
                                                 <div className="user-text-info">

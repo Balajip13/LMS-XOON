@@ -43,7 +43,7 @@ const createReview = async (req, res) => {
         await course.save();
 
         // Return review with user info populated
-        const populated = await Review.findById(review._id).populate('user', 'name profileImage');
+        const populated = await Review.findById(review._id).populate('user', 'name profilePic');
 
         res.status(isUpdate ? 200 : 201).json({
             message: isUpdate ? 'Review updated' : 'Review added',
@@ -62,7 +62,7 @@ const createReview = async (req, res) => {
 const getCourseReviews = async (req, res) => {
     try {
         const reviews = await Review.find({ course: req.params.courseId })
-            .populate('user', 'name profileImage')
+            .populate('user', 'name profilePic')
             .sort({ createdAt: -1 });
 
         res.json(reviews);

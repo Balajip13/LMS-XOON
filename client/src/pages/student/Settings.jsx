@@ -19,7 +19,7 @@ const Settings = () => {
     const [name, setName] = useState(user?.name || '');
     const [email, setEmail] = useState(user?.email || '');
     const [bio, setBio] = useState(user?.bio || '');
-    const [profileImagePreview, setProfileImagePreview] = useState(user?.profileImage || '');
+    const [profilePicPreview, setProfilePicPreview] = useState(user?.profilePic || '');
     const [uploading, setUploading] = useState(false);
     const [renderKey, setRenderKey] = useState(Date.now());
 
@@ -33,7 +33,7 @@ const Settings = () => {
             setName(user.name || '');
             setEmail(user.email || '');
             setBio(user.bio || '');
-            setProfileImagePreview(user.profileImage || '');
+            setProfilePicPreview(user.profilePic || '');
         }
     }, [user]);
 
@@ -43,7 +43,7 @@ const Settings = () => {
 
         // Preview locally
         const previewUrl = URL.createObjectURL(file);
-        setProfileImagePreview(previewUrl);
+        setProfilePicPreview(previewUrl);
 
         setUploading(true);
         isSubmitting.current = true;
@@ -52,12 +52,12 @@ const Settings = () => {
             formData.append('image', file);
             const updatedUser = await uploadAvatar(formData);
             if (updatedUser) {
-                setProfileImagePreview(updatedUser.profileImage);
+                setProfilePicPreview(updatedUser.profilePic);
                 setRenderKey(Date.now());
             }
         } catch (error) {
             console.error('Avatar upload failed:', error);
-            setProfileImagePreview(user?.profileImage || '');
+            setProfilePicPreview(user?.profilePic || '');
         } finally {
             setUploading(false);
             isSubmitting.current = false;
@@ -133,19 +133,19 @@ const Settings = () => {
                         <div className="profile-header-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '3rem', padding: '1.5rem', backgroundColor: 'var(--surface)', borderRadius: '24px', border: '1px solid var(--border)' }}>
                             <div style={{ position: 'relative', flexShrink: 0 }}>
                                 <div className="profile-image-container" style={{ width: '70px', height: '70px', minWidth: '70px', minHeight: '70px', maxWidth: '70px', maxHeight: '70px', borderRadius: '50%', backgroundColor: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', fontWeight: '700', color: 'white', overflow: 'hidden' }}>
-                                    {profileImagePreview ? (
+                                    {profilePicPreview ? (
                                         <img
                                             key={renderKey}
-                                            src={profileImagePreview.startsWith('blob:') ? profileImagePreview : `${profileImagePreview.split('?')[0]}${profileImagePreview.includes('?') ? '&' : '?'}t=${new Date(user.updatedAt || Date.now()).getTime()}`}
+                                            src={profilePicPreview.startsWith('blob:') ? profilePicPreview : profilePicPreview}
                                             alt={user?.name}
                                             style={{ width: '70px', height: '70px', minWidth: '70px', minHeight: '70px', maxWidth: '70px', maxHeight: '70px', objectFit: 'cover', borderRadius: '50%', overflow: 'hidden', display: 'block', margin: 0, padding: 0 }}
                                             onError={(e) => {
                                                 console.error('[SETTINGS] Image load error:', e.target.src);
-                                                setProfileImagePreview('');
+                                                e.target.src = '/default-avatar.png';
                                             }}
                                         />
                                     ) : (
-                                        user?.name?.charAt(0).toUpperCase() || 'U'
+                                        <img src="/default-avatar.png" alt="Default Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                     )}
                                 </div>
                                 <label

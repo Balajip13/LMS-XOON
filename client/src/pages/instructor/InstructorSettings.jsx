@@ -14,10 +14,10 @@ const InstructorSettings = () => {
         email: user?.email || '',
         bio: user?.bio || '',
         mobile: user?.mobile || '',
-        profileImage: user?.profileImage || ''
+        profilePic: user?.profilePic || ''
     });
     const [avatarFile, setAvatarFile] = useState(null);
-    const [avatarPreview, setAvatarPreview] = useState(user?.profileImage || '');
+    const [avatarPreview, setAvatarPreview] = useState(user?.profilePic || '');
     const isSubmitting = useRef(false);
 
     // Password State
@@ -49,9 +49,9 @@ const InstructorSettings = () => {
                 email: user.email || '',
                 bio: user.bio || '',
                 mobile: user.mobile || '',
-                profileImage: user.profileImage || ''
+                profilePic: user.profilePic || ''
             });
-            setAvatarPreview(user.profileImage || '');
+            setAvatarPreview(user.profilePic || '');
             setNotifications({
                 email: user.notificationSettings?.email ?? true,
                 courseUpdates: user.notificationSettings?.courseUpdates ?? true,
@@ -95,14 +95,14 @@ const InstructorSettings = () => {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
                 if (avatarRes.data) {
-                    const newImageUrl = avatarRes.data.profileImage;
-                    currentUpdatedData.profileImage = newImageUrl;
+                    const newImageUrl = avatarRes.data.profilePic;
+                    currentUpdatedData.profilePic = newImageUrl;
 
                     // Update global state immediately (Safe Method: Refetch fresh from server)
                     await refreshUser();
 
                     // Update local states
-                    setProfileData(prev => ({ ...prev, profileImage: newImageUrl }));
+                    setProfileData(prev => ({ ...prev, profilePic: newImageUrl }));
                     setAvatarPreview(newImageUrl);
                     setRenderKey(Date.now());
                 }
@@ -202,13 +202,13 @@ const InstructorSettings = () => {
                                             {avatarPreview ? (
                                                 <img
                                                     key={renderKey}
-                                                    src={avatarPreview.startsWith('blob:') ? avatarPreview : `${avatarPreview.split('?')[0]}${avatarPreview.includes('?') ? '&' : '?'}t=${new Date(user.updatedAt || Date.now()).getTime()}`}
+                                                    src={avatarPreview.startsWith('blob:') ? avatarPreview : avatarPreview}
                                                     alt="Avatar"
                                                     style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', display: 'block', margin: 0, padding: 0 }}
                                                     onError={(e) => { e.target.src = '/default-avatar.png'; }}
                                                 />
                                             ) : (
-                                                user?.name?.charAt(0).toUpperCase() || 'I'
+                                                <img src="/default-avatar.png" alt="Default Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                             )}
                                         </div>
                                         <label htmlFor="avatar-upload" style={{

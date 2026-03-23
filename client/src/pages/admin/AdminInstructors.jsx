@@ -331,18 +331,17 @@ const AdminInstructors = () => {
                                             <tr key={app._id}>
                                                 <td style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                                     <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: '700', overflow: 'hidden' }}>
-                                                        {app.userId?.profileImage ? (
+                                                        {app.userId?.profilePic ? (
                                                             <img
-                                                                src={`${app.userId.profileImage.split('?')[0]}${app.userId.profileImage.includes('?') ? '&' : '?'}t=${new Date(app.userId.updatedAt || Date.now()).getTime()}`}
+                                                                src={app.userId.profilePic}
                                                                 alt={app.fullName || app.userId?.name}
                                                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                                                 onError={(e) => {
-                                                                    e.target.style.display = 'none';
-                                                                    e.target.parentElement.innerText = (app.fullName || app.userId?.name || 'I').charAt(0).toUpperCase();
+                                                                    e.target.src = '/default-avatar.png';
                                                                 }}
                                                             />
                                                         ) : (
-                                                            (app.fullName || app.userId?.name || 'I').charAt(0).toUpperCase()
+                                                            <img src="/default-avatar.png" alt="Default Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                                         )}
                                                     </div>
                                                     <div className="font-bold">{app.fullName || app.userId?.name}</div>
@@ -396,18 +395,17 @@ const AdminInstructors = () => {
                                                 fontSize: '18px',
                                                 boxShadow: '0 4px 12px rgba(79,70,229,0.25)'
                                             }}>
-                                                {app.userId?.profileImage ? (
+                                                {app.userId?.profilePic ? (
                                                     <img
-                                                        src={`${app.userId.profileImage.split('?')[0]}${app.userId.profileImage.includes('?') ? '&' : '?'}t=${new Date(app.userId.updatedAt || Date.now()).getTime()}`}
+                                                        src={app.userId.profilePic}
                                                         alt={app.fullName || app.userId?.name}
                                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                                         onError={(e) => {
-                                                            e.target.style.display = 'none';
-                                                            e.target.parentElement.innerText = (app.fullName || app.userId?.name || 'U').charAt(0).toUpperCase();
+                                                            e.target.src = '/default-avatar.png';
                                                         }}
                                                     />
                                                 ) : (
-                                                    (app.fullName || app.userId?.name || 'U').charAt(0).toUpperCase()
+                                                    <img src="/default-avatar.png" alt="Default Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                                 )}
                                             </div>
                                             <div className="user-info-modern">

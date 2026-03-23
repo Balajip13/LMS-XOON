@@ -165,9 +165,9 @@ const InstructorAssignments = () => {
                                     <div className="sub-card-header">
                                         <div className="student-info">
                                             <div className="student-avatar">
-                                                {sub.student?.profileImage ? (
+                                                {sub.student?.profilePic ? (
                                                     <img
-                                                        src={sub.student.profileImage}
+                                                        src={sub.student.profilePic}
                                                         alt={sub.student?.name}
                                                         onError={(e) => { e.target.src = '/default-avatar.png'; }}
                                                     />

@@ -52,18 +52,17 @@ const NavbarDashboard = ({ toggleSidebar, showLogo = false, hideMenu = false }) 
                 {/* User Info */}
                 <div className="navbar-user-info">
                     <div className="navbar-user-avatar" style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--primary)', color: '#fff', fontWeight: 'bold' }}>
-                        {user?.profileImage ? (
+                        {user?.profilePic ? (
                             <img
-                                src={`${user.profileImage.split('?')[0]}${user.profileImage.includes('?') ? '&' : '?'}t=${new Date(user.updatedAt || Date.now()).getTime()}`}
+                                src={user.profilePic}
                                 alt={user?.name}
                                 style={{ width: '40px', height: '40px', minWidth: '40px', minHeight: '40px', maxWidth: '40px', maxHeight: '40px', objectFit: 'cover', borderRadius: '50%', overflow: 'hidden', display: 'block', margin: 0, padding: 0 }}
                                 onError={(e) => {
-                                    e.target.style.display = 'none';
-                                    e.currentTarget.parentElement.innerText = user?.name?.charAt(0).toUpperCase() || 'U';
+                                    e.target.src = '/default-avatar.png';
                                 }}
                             />
                         ) : (
-                            user?.name?.charAt(0).toUpperCase() || 'U'
+                            <img src="/default-avatar.png" alt="Default Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         )}
                     </div>
                 </div>

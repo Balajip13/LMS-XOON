@@ -47,7 +47,7 @@ export const getAssignments = async (req, res, next) => {
 
         const assignments = await Assignment.find(query)
             .populate('course', 'title')
-            .populate('submissions.student', 'name email profileImage')
+            .populate('submissions.student', 'name email profilePic')
             .sort({ createdAt: -1 });
 
         res.json({ success: true, data: assignments });

@@ -89,7 +89,7 @@ const loginUser = asyncHandler(async (req, res) => {
             name: user.name,
             email: user.email,
             role: roleNorm,
-            profileImage: user.profileImage,
+            profilePic: user.profilePic,
             isInstructor: user.isInstructor,
             isBlocked: user.isBlocked,
             status: user.status,
@@ -223,7 +223,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
             name: user.name,
             email: user.email,
             role: String(user.role || '').trim().toLowerCase(),
-            profileImage: user.profileImage,
+            profilePic: user.profilePic,
             bio: user.bio,
             notificationSettings: user.notificationSettings,
             enrolledCourses: user.enrolledCourses,
@@ -295,7 +295,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
             name: updatedUser.name,
             email: updatedUser.email,
             role: updatedUser.role,
-            profileImage: updatedUser.profileImage,
+            profilePic: updatedUser.profilePic,
             bio: updatedUser.bio,
             mobile: updatedUser.mobile,
             linkedin: updatedUser.linkedin,
@@ -413,13 +413,15 @@ const uploadAvatar = asyncHandler(async (req, res) => {
         });
     }
 
-    user.profileImage = `/uploads/${req.file.filename}`;
+    user.profilePic = req.file.path;
     await user.save();
+
+    console.log("Uploaded avatar URL:", user.profilePic);
 
     res.status(200).json({
         success: true,
         message: 'Avatar uploaded successfully',
-        profileImage: user.profileImage
+        profilePic: user.profilePic
     });
 });
 
@@ -540,7 +542,7 @@ const getUserEnrollments = asyncHandler(async (req, res) => {
         .populate({
             path: 'enrolledCourses',
             populate: [
-                { path: 'instructor', select: 'name profileImage' },
+                { path: 'instructor', select: 'name profilePic' },
                 { path: 'category', select: 'name' }
             ]
         });

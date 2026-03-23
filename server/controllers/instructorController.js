@@ -117,7 +117,7 @@ const submitApplication = async (req, res) => {
                 name: userFresh.name,
                 email: userFresh.email,
                 role: String(userFresh.role || '').trim().toLowerCase(),
-                profileImage: userFresh.profileImage,
+                profilePic: userFresh.profilePic,
                 instructorRequestStatus: userFresh.instructorRequestStatus,
                 instructorApplication: userFresh.instructorApplication,
                 resumeUrl: userFresh.resumeUrl,
@@ -223,7 +223,7 @@ const serveResume = async (req, res) => {
 // @access  Private/Admin
 const getAllApplications = async (req, res) => {
     try {
-        const applications = await InstructorApplication.find().populate('userId', 'name email profileImage');
+        const applications = await InstructorApplication.find().populate('userId', 'name email profilePic');
         res.json({
             success: true,
             message: 'Applications fetched successfully',
@@ -239,7 +239,7 @@ const getAllApplications = async (req, res) => {
 // @access  Private/Admin
 const getPendingApplications = async (req, res) => {
     try {
-        const applications = await InstructorApplication.find({ status: 'pending' }).populate('userId', 'name email profileImage');
+        const applications = await InstructorApplication.find({ status: 'pending' }).populate('userId', 'name email profilePic');
         
         // Filter out applications where user is null (deleted users)
         const validApplications = applications.filter(app => app.user !== null);

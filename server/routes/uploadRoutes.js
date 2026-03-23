@@ -12,12 +12,11 @@ router.post('/video', protect, authorize('instructor', 'admin'), courseUpload.si
         return res.status(400).json({ message: 'No video file uploaded' });
     }
 
+    console.log("Video uploaded to Cloudinary:", req.file.path);
+
     res.status(200).json({
         success: true,
-        url: req.file.path,
-        public_id: req.file.filename,
-        mimetype: req.file.mimetype,
-        size: req.file.size
+        url: req.file.path
     });
 });
 
@@ -29,10 +28,11 @@ router.post('/thumbnail', protect, authorize('instructor', 'admin'), courseUploa
         return res.status(400).json({ message: 'No image file uploaded' });
     }
 
+    console.log("Thumbnail uploaded to Cloudinary:", req.file.path);
+
     res.status(200).json({
         success: true,
-        url: req.file.path,
-        public_id: req.file.filename
+        url: req.file.path
     });
 });
 

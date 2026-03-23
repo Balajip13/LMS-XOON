@@ -38,7 +38,7 @@ const userSchema = mongoose.Schema({
         allowRegistrations: { type: Boolean, default: true }
     },
     // Additional fields for student/teacher profile
-    profileImage: {
+    profilePic: {
         type: String,
         default: '',
     },
