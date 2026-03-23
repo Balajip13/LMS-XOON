@@ -1,27 +1,21 @@
 import multer from 'multer';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
-import cloudinary from '../config/cloudinary.js';
+import path from 'path';
+import fs from 'fs';
 
-const storage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: async (req, file) => {
-        let folder = 'xoon_lms/others';
-        let resource_type = 'auto';
+// Ensure temp upload directory exists
+const tempDir = 'uploads/temp';
+if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir, { recursive: true });
+}
 
-        if (file.fieldname === 'thumbnail') {
-            folder = 'xoon_lms/thumbnails';
-            resource_type = 'image';
-        } else if (file.fieldname === 'video') {
-            folder = 'xoon_lms/videos';
-            resource_type = 'video';
-        }
-
-        return {
-            folder: folder,
-            resource_type: resource_type,
-            public_id: file.fieldname + '-' + Date.now(),
-        };
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, tempDir);
     },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
 });
 
 const fileFilter = (req, file, cb) => {
