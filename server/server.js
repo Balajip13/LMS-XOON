@@ -41,13 +41,15 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-// 🚀 ✅ FIXED CORS (FINAL WORKING)
-app.use(cors()); // ✅ KEEP THIS
-// ❌ REMOVED: app.options("*", cors());
+// 🚀 ✅ FIXED CORS (PRODUCTION SAFE)
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
 
 // Body parsing
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Logging

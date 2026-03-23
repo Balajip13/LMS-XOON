@@ -17,8 +17,8 @@ export const protect = async (req, res, next) => {
     // Extract token from Authorization header or cookies
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         token = req.headers.authorization.split(' ')[1];
-    } else if (req.cookies && req.cookies.jwt) {
-        token = req.cookies.jwt;
+    } else if (req.cookies && req.cookies.token) {
+        token = req.cookies.token;
     }
 
     if (!token) {
@@ -76,8 +76,8 @@ export const protectOptional = async (req, res, next) => {
 
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         token = req.headers.authorization.split(' ')[1];
-    } else if (req.cookies && req.cookies.jwt) {
-        token = req.cookies.jwt;
+    } else if (req.cookies && req.cookies.token) {
+        token = req.cookies.token;
     }
 
     if (token) {

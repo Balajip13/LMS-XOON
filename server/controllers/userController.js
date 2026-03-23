@@ -12,10 +12,10 @@ const generateToken = (res, userId) => {
         expiresIn: '30d',
     });
 
-    res.cookie('jwt', token, {
+    res.cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        secure: true,
+        sameSite: 'none',
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
 
@@ -188,11 +188,11 @@ const registerUser = asyncHandler(async (req, res) => {
 // @route   POST /api/users/logout
 // @access  Public
 const logoutUser = asyncHandler(async (req, res) => {
-    res.cookie('jwt', '', {
+    res.cookie('token', '', {
         httpOnly: true,
         expires: new Date(0),
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        secure: true,
+        sameSite: 'none',
     });
     
     res.status(200).json({
