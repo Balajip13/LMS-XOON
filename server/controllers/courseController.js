@@ -196,7 +196,11 @@ const updateCourse = async (req, res) => {
         course.price = price !== undefined ? price : course.price;
         course.originalPrice = req.body.originalPrice !== undefined ? req.body.originalPrice : (course.originalPrice || course.price);
         course.discountPercentage = req.body.discountPercentage !== undefined ? req.body.discountPercentage : (course.discountPercentage || 0);
-        course.thumbnailUrl = thumbnailUrl || thumbnail || course.thumbnailUrl;
+        if (req.file) {
+            course.thumbnailUrl = req.file.path;
+        } else {
+            course.thumbnailUrl = thumbnailUrl || thumbnail || course.thumbnailUrl;
+        }
         course.category = category || course.category;
         course.videos = videos || course.videos;
         course.isPublished = isPublished !== undefined ? isPublished : course.isPublished;

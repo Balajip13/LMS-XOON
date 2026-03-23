@@ -18,14 +18,14 @@ const router = express.Router();
 
 router.route('/')
     .get(protectOptional, getCourses)
-    .post(protect, authorize('admin', 'instructor'), courseUpload.single('thumbnail'), createCourse);
+    .post(protect, authorize('admin', 'instructor'), courseUpload.single('thumbnailUrl'), createCourse);
 
 router.get('/enrolled', protect, getEnrolledCourses);
 
 router
     .route('/:id')
     .get(getCourseById)
-    .put(protect, authorize('admin', 'instructor'), updateCourse)
+    .put(protect, authorize('admin', 'instructor'), courseUpload.single('thumbnailUrl'), updateCourse)
     .delete(protect, authorize('admin'), deleteCourse);
 router.post('/:id/enroll', protect, enrollCourse);
 

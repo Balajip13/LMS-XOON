@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    if (file.fieldname === 'thumbnail') {
+    if (file.fieldname === 'thumbnail' || file.fieldname === 'thumbnailUrl') {
         if (!file.mimetype.startsWith('image/')) {
             return cb(new Error('Please upload an image'), false);
         }
