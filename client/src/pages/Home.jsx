@@ -123,13 +123,38 @@ const Home = () => {
                         margin: 0 auto;
                         width: 100%;
                     }
-                    .hero-content {
+                                    .hero-content {
                         order: 1;
                         margin-top: 0 !important;
                     }
                 }
+                @media (max-width: 768px) {
+                    .hero-section {
+                        padding-top: 1.2rem !important;
+                        padding-bottom: 2.5rem !important;
+                        min-height: auto !important;
+                        align-items: flex-start !important;
+                    }
+                    .hero-title {
+                        margin-top: 0 !important;
+                        margin-bottom: 0.8rem !important;
+                        font-size: clamp(1.55rem, 6.2vw, 2.1rem) !important;
+                        white-space: nowrap !important;
+                        letter-spacing: -0.5px !important;
+                        font-weight: 700 !important;
+                        line-height: 1.2 !important;
+                    }
+                    .hero-subtitle {
+                        margin-bottom: 1.5rem !important;
+                        word-break: normal !important;
+                        overflow-wrap: normal !important;
+                        hyphens: none !important;
+                        line-height: 1.6 !important;
+                        font-size: 1.05rem !important;
+                    }
+                }
             `}</style>
-            <section style={{
+            <section className="hero-section" style={{
                 padding: '6rem 0',
                 backgroundColor: 'var(--surface)',
                 borderBottom: '1px solid var(--border)',
@@ -140,10 +165,10 @@ const Home = () => {
             }}>
                 <div className="container hero-grid">
                     <div className="hero-content animate-fade-in" style={{ textAlign: 'left', marginTop: '-4.5rem' }}>
-                        <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3.25rem)', marginBottom: '1.25rem', letterSpacing: '-0.05em', lineHeight: '1.2' }}>
+                        <h1 className="hero-title" style={{ fontSize: 'clamp(2rem, 4vw, 3.25rem)', marginBottom: '1.25rem', letterSpacing: '-0.05em', lineHeight: '1.2' }}>
                             Welcome to <span style={{ color: 'var(--primary)' }}>Xoon LMS</span>
                         </h1>
-                        <p style={{ fontSize: 'clamp(0.95rem, 1.5vw, 1.15rem)', color: 'var(--text-secondary)', marginBottom: '2.5rem', fontWeight: 300, maxWidth: '540px' }}>
+                        <p className="hero-subtitle" style={{ fontSize: 'clamp(0.95rem, 1.5vw, 1.15rem)', color: 'var(--text-secondary)', marginBottom: '2.5rem', fontWeight: 300, maxWidth: '540px' }}>
                             Gateway for Smarter Learning. Access high-quality education and expert-led courses from anywhere in the world.
                         </p>
 

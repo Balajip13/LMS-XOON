@@ -33,7 +33,9 @@ const CreateCourse = () => {
             try {
                 // Fetch Categories
                 const { data: catData } = await api.get('/categories');
-                setCategories(catData);
+                console.log("Categories:", catData);
+                const fetchedCategories = catData.categories || [];
+                setCategories(fetchedCategories);
 
                 // If ID is present, fetch course data for editing
                 if (id) {
@@ -69,8 +71,8 @@ const CreateCourse = () => {
                     if (courseData.thumbnail) {
                         setThumbnailPreview(courseData.thumbnail);
                     }
-                } else if (catData.length > 0) {
-                    setFormData(prev => ({ ...prev, category: catData[0]._id }));
+                } else if (fetchedCategories.length > 0) {
+                    setFormData(prev => ({ ...prev, category: fetchedCategories[0]._id }));
                 }
             } catch (error) {
                 toast.error('Failed to load initial data');

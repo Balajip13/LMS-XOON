@@ -7,7 +7,10 @@ import slugify from 'slugify';
 const getCategories = async (req, res) => {
     try {
         const categories = await Category.find({}).sort({ name: 1 });
-        res.json(categories);
+        res.json({
+            success: true,
+            categories
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

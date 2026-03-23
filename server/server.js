@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import connectDB from './config/db.js';
 import createDefaultAdmin from './utils/seedAdmin.js';
+import seedCategories from './utils/seedCategories.js';
 import path from 'path';
 import fs from 'fs';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
@@ -114,6 +115,7 @@ const startServer = async () => {
     try {
         await connectDB();
         await createDefaultAdmin();
+        await seedCategories();
         app.listen(PORT, () => {
             console.log(`🚀 Server running on port ${PORT}`);
         });

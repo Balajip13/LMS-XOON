@@ -25,7 +25,11 @@ import {
     DollarSign,
     Maximize,
     Volume2,
-    Lock
+    Lock,
+    Plus,
+    Monitor,
+    Minus,
+    Infinity
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { formatINR } from '../utils/currency';
