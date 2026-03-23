@@ -473,7 +473,12 @@ const CourseDetail = ({ enrollments = [], isPlayerMode = false }) => {
         try {
             const response = await api.post('/enrollments/complete-lesson', { courseId: id, lessonId });
             if (response.data.success) {
-                setEnrollment(response.data.enrollment);
+                // Ensure we store the total stats returned by the backend
+                setEnrollment({
+                    ...response.data.enrollment,
+                    totalLessons: response.data.totalLessons,
+                    completedLessonsCount: response.data.completedLessonsCount
+                });
                 return true;
             }
             return false;
@@ -489,7 +494,8 @@ const CourseDetail = ({ enrollments = [], isPlayerMode = false }) => {
         lastClockTimeRef.current = currentTime;
         if (delta > 0 && delta <= 1.5) {
             timeAccumulatorRef.current += delta;
-            if (timeAccumulatorRef.current >= 30) {
+            // Sync time every 10 seconds as requested
+            if (timeAccumulatorRef.current >= 10) {
                 const secondsToSave = Math.floor(timeAccumulatorRef.current);
                 api.post('/enrollments/update-time', {
                     courseId: id,
@@ -504,7 +510,7 @@ const CourseDetail = ({ enrollments = [], isPlayerMode = false }) => {
             }
         }
         if (currentTime / duration > 0.85 && currentLesson) {
-            const completedIds = (enrollment?.completedLessons || []).map(cl => cl._id?.toString() || cl.toString());
+            const completedIds = (enrollment?.completedLessons || []).map(cl => (cl._id?.toString() || cl.toString()));
             const isDone = completedIds.includes(currentLesson._id.toString());
             if (!isDone) {
                 const success = await handleLessonComplete(currentLesson._id);
@@ -575,8 +581,13 @@ const CourseDetail = ({ enrollments = [], isPlayerMode = false }) => {
 
     // --- ENROLLED VIEW (PLAYER) ---
     if (isEnrolled && isPlayerMode) {
-        const completedLessons = enrollment?.completedLessons?.length || 0;
-        const progressPct = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+        const completedLessonsCount = enrollment?.completedLessonsCount ?? (enrollment?.completedLessons?.length || 0);
+        const backendTotalLessons = enrollment?.totalLessons ?? totalLessons;
+        const progressPct = enrollment?.progress ?? (backendTotalLessons > 0 ? Math.round((completedLessonsCount / backendTotalLessons) * 100) : 0);
+
+        console.log("Total Lessons:", backendTotalLessons);
+        console.log("Completed:", completedLessonsCount);
+        console.log("Progress:", progressPct);
 
         const renderVideo = () => {
             if (!currentVideo) return (
@@ -699,7 +710,7 @@ const CourseDetail = ({ enrollments = [], isPlayerMode = false }) => {
                                     <div className="lp-fade-in">
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
                                             <h3 className="lp-section-title" style={{ margin: 0 }}>Course Curriculum</h3>
-                                            <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{completedLessons}/{totalLessons} lessons completed</span>
+                                            <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{completedLessonsCount}/{backendTotalLessons} lessons completed</span>
                                         </div>
                                         <div className="lp-curriculum-list">
                                             {curriculum.map((chapter, i) => {
@@ -862,7 +873,7 @@ const CourseDetail = ({ enrollments = [], isPlayerMode = false }) => {
                             <div style={{ height: 6, background: 'var(--border)', borderRadius: 100, overflow: 'hidden' }}><div style={{ width: `${progressPct}%`, height: '100%', background: 'var(--primary)', transition: 'width 0.4s ease' }} /></div>
                         </div>
                         {[
-                            { label: 'Lessons', value: `${completedLessons} / ${totalLessons}` },
+                            { label: 'Lessons', value: `${completedLessonsCount} / ${backendTotalLessons}` },
                             { label: 'Chapters', value: `${curriculum.length} total` },
                             {
                                 label: 'Time Spent', value: (() => {

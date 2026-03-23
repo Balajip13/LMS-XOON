@@ -129,7 +129,20 @@ export const getEnrollmentDetail = async (req, res) => {
             return res.status(404).json({ message: 'Enrollment not found' });
         }
 
-        res.json(enrollment);
+        // Calculate total lessons and completed count for consistent frontend display
+        const Chapter = (await import('../models/Chapter.js')).default;
+        const Lesson = (await import('../models/Lesson.js')).default;
+
+        const chapters = await Chapter.find({ course: req.params.courseId });
+        const chapterIds = chapters.map(c => c._id);
+        const totalLessons = await Lesson.countDocuments({ chapter: { $in: chapterIds } });
+        const completedLessonsCount = enrollment.completedLessons.length;
+
+        res.json({
+            ...enrollment.toObject(),
+            totalLessons,
+            completedLessonsCount
+        });
     } catch (error) {
         res.status(500).json({ message: 'Failed to fetch enrollment detail', error: error.message });
     }
@@ -184,10 +197,15 @@ export const completeLesson = async (req, res) => {
             return res.status(404).json({ message: 'Enrollment not found' });
         }
 
-        if (!enrollment.completedLessons.includes(lessonId)) {
+        // Robust duplicate check - convert all to string for comparison
+        const isAlreadyCompleted = enrollment.completedLessons.some(
+            id => id.toString() === lessonId.toString()
+        );
+
+        if (!isAlreadyCompleted) {
             enrollment.completedLessons.push(lessonId);
 
-            // Calculate progress accurately
+            // Calculate total lessons accurately
             const Chapter = (await import('../models/Chapter.js')).default;
             const Lesson = (await import('../models/Lesson.js')).default;
 
@@ -196,7 +214,9 @@ export const completeLesson = async (req, res) => {
             const totalLessonsCount = await Lesson.countDocuments({ chapter: { $in: chapterIds } });
 
             if (totalLessonsCount > 0) {
-                enrollment.progress = Math.round((enrollment.completedLessons.length / totalLessonsCount) * 100);
+                // Ensure progress is accurate and capped at 100%
+                const completedCount = enrollment.completedLessons.length;
+                enrollment.progress = Math.min(Math.round((completedCount / totalLessonsCount) * 100), 100);
             }
 
             if (enrollment.progress === 100) {
@@ -206,7 +226,19 @@ export const completeLesson = async (req, res) => {
             await enrollment.save();
         }
 
-        res.json({ success: true, enrollment });
+        // Return stats along with enrollment for real-time frontend update
+        const chapters = await (await import('../models/Chapter.js')).default.find({ course: courseId });
+        const chapterIds = chapters.map(c => c._id);
+        const totalLessons = await (await import('../models/Lesson.js')).default.countDocuments({ chapter: { $in: chapterIds } });
+
+        console.log(`[completeLesson] Course: ${courseId}, Total: ${totalLessons}, Completed: ${enrollment.completedLessons.length}, Progress: ${enrollment.progress}%`);
+
+        res.json({
+            success: true,
+            enrollment,
+            totalLessons,
+            completedLessonsCount: enrollment.completedLessons.length
+        });
     } catch (error) {
         res.status(500).json({ message: 'Failed to complete lesson', error: error.message });
     }
