@@ -49,23 +49,24 @@ const Courses = () => {
                 <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>Master new skills with our professional-led curriculum</p>
             </div>
 
-            {/* Search Bar */}
-            <div className="search-container">
-                <Search className="search-icon-absolute" size={20} />
+            {/* Search Bar Refined */}
+            <div className="search-wrapper">
+                <div className="search-icon">
+                    <Search size={20} />
+                </div>
                 <input 
                     type="text"
                     placeholder="Search courses by title..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="search-input"
                 />
             </div>
 
-            {/* Category Filters */}
-            <div className="category-filter-container">
+            {/* Category Filters Refined */}
+            <div className="category-scroll">
                 <button 
                     onClick={() => setSelectedCategory('All')}
-                    className={`category-btn ${selectedCategory === 'All' ? 'active' : ''}`}
+                    className={selectedCategory === 'All' ? 'active' : ''}
                 >
                     All
                 </button>
@@ -73,7 +74,7 @@ const Courses = () => {
                     <button
                         key={cat._id}
                         onClick={() => setSelectedCategory(cat.name)}
-                        className={`category-btn ${selectedCategory === cat.name ? 'active' : ''}`}
+                        className={selectedCategory === cat.name ? 'active' : ''}
                     >
                         {cat.name}
                     </button>

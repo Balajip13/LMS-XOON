@@ -2251,67 +2251,107 @@ input[type="password"]::-webkit-password-reveal-button {
   color: var(--primary);
 }
 
-/* Search & Filters */
-.search-container {
+/* Search & Filters Refined */
+.search-wrapper {
+  position: relative;
+  width: 100%;
   max-width: 600px;
   margin: 0 auto 2rem;
-  position: relative;
 }
 
-.search-input {
+.search-wrapper input {
   width: 100%;
   padding: 12px 16px 12px 45px;
-  border-radius: 50px;
+  border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);
   font-size: 1rem;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--shadow-sm);
 }
 
-.search-input:focus {
+.search-wrapper input:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1);
   outline: none;
 }
 
-.search-icon-absolute {
+.search-icon {
   position: absolute;
   left: 16px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-muted);
   pointer-events: none;
-}
-
-.category-filter-container {
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin-bottom: 3rem;
+  z-index: 10;
 }
 
-.category-btn {
-  padding: 8px 20px;
+/* Category Scroll Refined */
+.category-scroll {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 3.5rem;
+  transition: all 0.3s ease;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.category-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Desktop: Centered Wrap */
+@media (min-width: 769px) {
+  .category-scroll {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+/* Mobile: Horizontal Swipeable List */
+@media (max-width: 768px) {
+  .category-scroll {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding: 0.5rem 1.5rem 1rem;
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    mask-image: linear-gradient(to right, black 85%, transparent);
+  }
+
+  .category-scroll button {
+    flex: 0 0 auto;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+}
+
+.category-scroll button {
+  padding: 10px 24px;
   border-radius: 50px;
   font-size: 0.9rem;
   font-weight: 600;
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text-secondary);
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  white-space: nowrap;
 }
 
-.category-btn:hover {
+.category-scroll button:hover {
   border-color: var(--primary);
   color: var(--primary);
   background: var(--surface-hover);
 }
 
-.category-btn.active {
+.category-scroll button.active {
   background: var(--primary);
   color: white;
   border-color: var(--primary);
