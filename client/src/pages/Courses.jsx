@@ -1,30 +1,46 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Search } from 'lucide-react';
 
 const Courses = () => {
     const { api } = useAuth();
     const [courses, setCourses] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('All');
 
     useEffect(() => {
-        const fetchCourses = async () => {
+        const fetchData = async () => {
             try {
-                const { data } = await api.get('/courses');
+                setLoading(true);
+                const [courseRes, catRes] = await Promise.all([
+                    api.get('/courses'),
+                    api.get('/categories')
+                ]);
 
-                // ✅ FIXED LINE
-                setCourses(data?.courses || data || []);
+                setCourses(courseRes.data?.courses || courseRes.data || []);
+                setCategories(catRes.data?.categories || []);
 
             } catch (err) {
-                console.error('Error fetching courses:', err.response?.data || err.message);
+                console.error('Error fetching data:', err.response?.data || err.message);
                 setCourses([]);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchCourses();
+        fetchData();
     }, [api]);
+
+    // Combined filter logic
+    const filteredCourses = (courses || []).filter(course => {
+        const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase());
+        const categoryName = course.category?.name || course.category;
+        const matchesCategory = selectedCategory === 'All' || categoryName === selectedCategory;
+        return matchesSearch && matchesCategory;
+    });
 
     return (
         <div className="container" style={{ padding: '4rem 1.5rem' }}>
@@ -33,15 +49,47 @@ const Courses = () => {
                 <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>Master new skills with our professional-led curriculum</p>
             </div>
 
+            {/* Search Bar */}
+            <div className="search-container">
+                <Search className="search-icon-absolute" size={20} />
+                <input 
+                    type="text"
+                    placeholder="Search courses by title..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="search-input"
+                />
+            </div>
+
+            {/* Category Filters */}
+            <div className="category-filter-container">
+                <button 
+                    onClick={() => setSelectedCategory('All')}
+                    className={`category-btn ${selectedCategory === 'All' ? 'active' : ''}`}
+                >
+                    All
+                </button>
+                {categories.map(cat => (
+                    <button
+                        key={cat._id}
+                        onClick={() => setSelectedCategory(cat.name)}
+                        className={`category-btn ${selectedCategory === cat.name ? 'active' : ''}`}
+                    >
+                        {cat.name}
+                    </button>
+                ))}
+            </div>
+
+            {/* Course Grid */}
             {loading ? (
                 <div className="course-grid">
                     {[1, 2, 3, 4, 5, 6].map((i) => (
                         <div key={i} className="course-card" style={{ minHeight: '380px', opacity: 0.5, backgroundColor: 'var(--surface-hover)' }}></div>
                     ))}
                 </div>
-            ) : courses.length > 0 ? (
+            ) : filteredCourses.length > 0 ? (
                 <div className="course-grid">
-                    {courses.map(course => (
+                    {filteredCourses.map(course => (
                         <Link key={course._id} to={`/course/${course._id}`} className="course-card">
                             <div className="course-card-image-wrapper">
                                 <img 
@@ -58,7 +106,7 @@ const Courses = () => {
                                 </p>
                                 <div className="course-card-footer">
                                     <span className="course-card-price">₹{course.price || 'Free'}</span>
-                                    <span className="course-card-btn">View Course →</span>
+                                    <span className="course-card-btn">View Course</span>
                                 </div>
                             </div>
                         </Link>
@@ -66,7 +114,7 @@ const Courses = () => {
                 </div>
             ) : (
                 <div style={{ textAlign: 'center', padding: '4rem' }}>
-                    <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)' }}>No courses available at the moment.</p>
+                    <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)' }}>No courses found matching your criteria.</p>
                 </div>
             )}
         </div>
