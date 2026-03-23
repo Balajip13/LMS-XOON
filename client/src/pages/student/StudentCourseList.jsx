@@ -105,31 +105,16 @@ const StudentCourseList = () => {
 
             {/* Course Grid */}
             {filteredCourses.length > 0 ? (
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-                    gap: '2rem'
-                }}>
+                <div className="course-grid">
                     {filteredCourses.map((course) => {
                         const pricing = getPricingData(course);
                         return (
-                            <Link to={`/student/course/${course._id}/preview`} key={course._id} style={{
-                                backgroundColor: 'var(--surface)',
-                                borderRadius: '16px',
-                                border: '1px solid var(--border)',
-                                overflow: 'hidden',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                textDecoration: 'none',
-                                color: 'inherit',
-                                transition: 'all 0.3s ease',
-                                boxShadow: 'var(--shadow-sm)'
-                            }} className="course-explorer-card">
-                                <div style={{ width: '100%', aspectRatio: '16/9', overflow: 'hidden', position: 'relative' }}>
+                            <Link to={`/student/course/${course._id}/preview`} key={course._id} className="course-card">
+                                <div className="course-card-image-wrapper">
                                     <img
-                                        src={course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}
+                                        src={course.thumbnailUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}
                                         alt={course.title}
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                        className="course-card-image"
                                     />
                                     <div style={{ position: 'absolute', top: '0.75rem', left: '0.75rem' }}>
                                         <span style={{
