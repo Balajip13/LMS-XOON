@@ -204,7 +204,7 @@ const AdminCourses = () => {
                             <tbody>
                                 {filteredCourses.map(course => (
                                     <tr key={course._id}>
-                                        <td data-label="Course Identity">
+                                        <td className="course-section" data-label="Course Identity">
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                                                 {course.thumbnailUrl || course.thumbnail ? (
                                                     <img
@@ -227,10 +227,10 @@ const AdminCourses = () => {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td data-label="Expert">
+                                        <td className="course-section" data-label="Expert">
                                             <div style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>{course.instructor?.name || 'Platform'}</div>
                                         </td>
-                                        <td data-label="Monetization">
+                                        <td className="course-section" data-label="Monetization">
                                             {(() => {
                                                 const pricing = getPricingData(course);
                                                 return (
@@ -245,61 +245,70 @@ const AdminCourses = () => {
                                                 );
                                             })()}
                                         </td>
-                                        <td data-label="Status">
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                                                <span className={`status-badge ${course.status === 'approved' ? 'active' : course.status === 'rejected' ? 'suspended' : 'pending'}`}>
-                                                    {course.status || 'Pending'}
-                                                </span>
-                                                {course.isPublished && (
-                                                    <span style={{ fontSize: '0.7rem', color: 'var(--success)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                                                        <Eye size={10} /> LIVE
+                                        <td className="course-section">
+                                            <div className="status-section">
+                                                <span className="action-label">Status</span>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', alignItems: 'flex-end' }}>
+                                                    <span className={`status-badge ${course.status === 'approved' ? 'active' : course.status === 'rejected' ? 'suspended' : 'pending'}`}>
+                                                        {course.status || 'Pending'}
                                                     </span>
-                                                )}
+                                                    {course.isPublished && (
+                                                        <span style={{ fontSize: '0.7rem', color: 'var(--success)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                                                            <Eye size={10} /> LIVE
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </td>
-                                        <td data-label="Featured" style={{ textAlign: 'center' }}>
-                                            <button
-                                                onClick={() => handleQuickAction(course, { isFeatured: !course.isFeatured })}
-                                                style={{
-                                                    background: 'none',
-                                                    border: 'none',
-                                                    cursor: 'pointer',
-                                                    color: course.isFeatured ? '#f59e0b' : '#cbd5e1',
-                                                    padding: '0.5rem',
-                                                    transition: 'transform 0.2s'
-                                                }}
-                                                className="hover:scale-110"
-                                            >
-                                                <Star size={20} fill={course.isFeatured ? "currentColor" : "none"} />
-                                            </button>
+                                        <td className="course-section">
+                                            <div className="featured-section">
+                                                <span className="action-label">Featured</span>
+                                                <button
+                                                    onClick={() => handleQuickAction(course, { isFeatured: !course.isFeatured })}
+                                                    style={{
+                                                        background: 'none',
+                                                        border: 'none',
+                                                        cursor: 'pointer',
+                                                        color: course.isFeatured ? '#f59e0b' : '#cbd5e1',
+                                                        padding: '0.5rem',
+                                                        transition: 'transform 0.2s'
+                                                    }}
+                                                    className="hover:scale-110"
+                                                >
+                                                    <Star size={20} fill={course.isFeatured ? "currentColor" : "none"} />
+                                                </button>
+                                            </div>
                                         </td>
-                                        <td data-label="Actions" style={{ textAlign: 'right' }}>
-                                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                                                {course.status === 'pending' && (
-                                                    <>
-                                                        <button
-                                                            onClick={() => handleQuickAction(course, { status: 'approved' })}
-                                                            className="admin-action-btn"
-                                                            title="Approve Course"
-                                                            style={{ color: 'var(--success)', borderColor: 'rgba(21, 128, 61, 0.2)' }}
-                                                        >
-                                                            <CheckCircle size={16} />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleQuickAction(course, { status: 'rejected' })}
-                                                            className="admin-action-btn danger"
-                                                            title="Reject Course"
-                                                        >
-                                                            <X size={16} />
-                                                        </button>
-                                                    </>
-                                                )}
-                                                <button onClick={() => handleEdit(course)} className="admin-action-btn" title="Audit Details">
-                                                    <Edit size={16} />
-                                                </button>
-                                                <button onClick={() => handleDelete(course._id)} className="admin-action-btn danger" title="Remove Permanently">
-                                                    <Trash2 size={16} />
-                                                </button>
+                                        <td className="course-section">
+                                            <div className="course-actions">
+                                                <span className="action-label">Actions</span>
+                                                <div className="action-buttons">
+                                                    {course.status === 'pending' && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleQuickAction(course, { status: 'approved' })}
+                                                                className="admin-action-btn"
+                                                                title="Approve Course"
+                                                                style={{ color: 'var(--success)', borderColor: 'rgba(21, 128, 61, 0.2)' }}
+                                                            >
+                                                                <CheckCircle size={16} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleQuickAction(course, { status: 'rejected' })}
+                                                                className="admin-action-btn danger"
+                                                                title="Reject Course"
+                                                            >
+                                                                <X size={16} />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    <button onClick={() => handleEdit(course)} className="admin-action-btn" title="Audit Details">
+                                                        <Edit size={16} />
+                                                    </button>
+                                                    <button onClick={() => handleDelete(course._id)} className="admin-action-btn danger" title="Remove Permanently">
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>

@@ -531,6 +531,64 @@ body.dark .admin-page-header {
     animation: spin 2s linear infinite;
 }
 
+/* Admin Courses Layout Alignment & Padding Fix */
+.course-section {
+    padding: 1rem 1.25rem; /* Matches user request for 16px 20px */
+    border-bottom: 1px solid var(--border);
+}
+
+.action-label {
+    display: none; /* Hidden on desktop */
+    font-weight: 700;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+.status-section,
+.featured-section,
+.course-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .course-section {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 1rem 1.25rem !important; /* 16px 20px */
+        width: 100% !important;
+        background: var(--surface);
+    }
+
+    .action-label {
+        display: block; /* Visible on mobile */
+        text-align: left;
+    }
+
+    .status-section,
+    .featured-section,
+    .course-actions {
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .status-cell,
+    .featured-cell,
+    .actions-cell {
+        display: contents !important; /* Let children follow course-section flex */
+    }
+}
+
 /* Responsive Table Stack */
 @media (max-width: 768px) {
     .responsive-table-stack thead {

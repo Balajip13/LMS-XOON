@@ -40,6 +40,10 @@
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.06);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
   --logo-brightness: 1;
+
+  /* Aliases for consistency */
+  --text-primary: #0f172a;
+  --surface-subtle: rgba(0, 0, 0, 0.04);
 }
 
 body.dark {
@@ -70,6 +74,10 @@ body.dark {
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
   --logo-brightness: 1.15;
   /* Subtle brightness boost for dark mode logos */
+
+  /* Aliases for consistency */
+  --text-primary: #f1f5f9;
+  --surface-subtle: rgba(255, 255, 255, 0.05);
 }
 
 * {
@@ -118,6 +126,7 @@ a:hover {
 button {
   font-family: inherit;
   cursor: pointer;
+  color: inherit;
 }
 
 input,
@@ -1461,7 +1470,7 @@ input[type="password"]::-webkit-password-reveal-button {
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem 1.5rem;
-  background-color: rgba(0, 0, 0, 0.015);
+  background-color: var(--surface-hover);
   border: none;
   border-bottom: 1px solid var(--border);
   cursor: pointer;
@@ -1470,7 +1479,7 @@ input[type="password"]::-webkit-password-reveal-button {
 }
 
 .lp-chapter-header:hover {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: var(--background);
 }
 
 .lp-chapter-num {
@@ -1484,6 +1493,7 @@ input[type="password"]::-webkit-password-reveal-button {
 .lp-chapter-title {
   font-weight: 700;
   font-size: 1.05rem;
+  color: var(--text);
 }
 
 .lp-chapter-lessons {
@@ -1637,7 +1647,7 @@ input[type="password"]::-webkit-password-reveal-button {
   align-items: center;
   gap: 0.6rem;
   padding: 0.75rem 1.5rem;
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: var(--surface-subtle);
   border-radius: 100px;
   font-size: 0.85rem;
   font-weight: 700;
@@ -1721,6 +1731,7 @@ input[type="password"]::-webkit-password-reveal-button {
   border: none;
   cursor: pointer;
   text-align: left;
+  color: var(--text);
 }
 
 .lp-nav-chapter-header:hover {
@@ -2032,6 +2043,7 @@ input[type="password"]::-webkit-password-reveal-button {
 
 .player-controls input[type="range"] {
   -webkit-appearance: none;
+  appearance: none;
   background: rgba(255, 255, 255, 0.2);
   border-radius: 10px;
 }
@@ -2215,6 +2227,7 @@ input[type="password"]::-webkit-password-reveal-button {
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -2226,6 +2239,7 @@ input[type="password"]::-webkit-password-reveal-button {
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

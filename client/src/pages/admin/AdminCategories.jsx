@@ -21,7 +21,7 @@ const AdminCategories = () => {
         setLoading(true);
         try {
             const { data } = await api.get('/categories');
-            setCategories(data || []);
+            setCategories(data.categories || []);
         } catch (err) {
             console.error('Failed to fetch categories:', err);
             if (!err.response || err.response.status >= 500) {

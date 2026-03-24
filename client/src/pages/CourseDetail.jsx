@@ -842,8 +842,8 @@ const CourseDetail = ({ enrollments = [], isPlayerMode = false }) => {
                                             <h3>Course Certificate</h3>
                                             <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Complete lessons and pass quiz (70%+) to earn your certificate.</p>
                                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', margin: '1.5rem 0' }}>
-                                                <div style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(0,0,0,0.02)' }}><div>Progress</div><strong>{progressPct}%</strong></div>
-                                                <div style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(0,0,0,0.02)' }}><div>Quiz</div><strong>{Math.round(enrollment?.bestQuizScore || 0)}%</strong></div>
+                                                <div style={{ padding: '1rem', borderRadius: '12px', background: 'var(--surface-subtle)' }}><div>Progress</div><strong>{progressPct}%</strong></div>
+                                                <div style={{ padding: '1rem', borderRadius: '12px', background: 'var(--surface-subtle)' }}><div>Quiz</div><strong>{Math.round(enrollment?.bestQuizScore || 0)}%</strong></div>
                                             </div>
                                             {progressPct === 100 && (enrollment?.bestQuizScore >= 70) ? (
                                                 <button
@@ -855,7 +855,7 @@ const CourseDetail = ({ enrollments = [], isPlayerMode = false }) => {
                                                     {downloadingCert ? 'Generating...' : 'Download Certificate'}
                                                 </button>
                                             ) : (
-                                                <div style={{ padding: '1rem', borderRadius: '10px', background: 'rgba(0,0,0,0.03)', fontSize: '0.85rem' }}><Lock size={14} /> Locked — Pass the quiz and complete all lessons.</div>
+                                                <div style={{ padding: '1rem', borderRadius: '10px', background: 'var(--surface-subtle)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}><Lock size={14} /> Locked — Pass the quiz and complete all lessons.</div>
                                             )}
                                         </div>
                                     </div>
