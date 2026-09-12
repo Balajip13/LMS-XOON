@@ -16,7 +16,16 @@ import { toast } from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import './AdminInstructors.css';
 
-const API_ORIGIN = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
+const getApiOrigin = () => {
+    let origin = import.meta.env.VITE_API_URL;
+    if (import.meta.env.PROD && !origin) {
+        throw new Error("VITE_API_URL environment variable is required in production.");
+    }
+    origin = origin || 'http://127.0.0.1:5000';
+    return origin.replace(/\/+$/, '');
+};
+
+const API_ORIGIN = getApiOrigin();
 
 const AdminInstructors = () => {
     const { api } = useAuth();

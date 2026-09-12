@@ -6,9 +6,21 @@ const AuthContext = createContext();
 
 const normalizeRole = (role) => String(role || '').trim().toLowerCase();
 
+let apiBaseUrl = import.meta.env.VITE_API_URL;
+
+if (import.meta.env.PROD && !apiBaseUrl) {
+    throw new Error("VITE_API_URL environment variable is required in production. Do not rely on localhost fallback.");
+}
+
+if (!apiBaseUrl) {
+    apiBaseUrl = 'http://127.0.0.1:5000';
+}
+
+apiBaseUrl = apiBaseUrl.replace(/\/+$/, '');
+
 // ✅ FIXED BASE URL (WITH /api)
 const api = axios.create({
-    baseURL: `${import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000'}/api`,
+    baseURL: `${apiBaseUrl}/api`,
     timeout: 300000,
     withCredentials: true,
 });
