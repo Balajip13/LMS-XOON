@@ -437,7 +437,7 @@ const CourseDetail = ({ enrollments = [], isPlayerMode = false }) => {
             if (firstChapter.lessons && firstChapter.lessons.length > 0) {
                 const firstLesson = firstChapter.lessons[0];
                 setCurrentLesson(firstLesson);
-                setCurrentVideo(firstLesson.videoUrl);
+                setCurrentVideo(firstLesson.videoUrl || course.videoUrl || course.previewVideo);
                 setExpandedChapters(new Set([firstChapter._id]));
             }
         }
@@ -464,7 +464,7 @@ const CourseDetail = ({ enrollments = [], isPlayerMode = false }) => {
 
     const handleLessonClick = (lesson) => {
         setCurrentLesson(lesson);
-        setCurrentVideo(lesson.videoUrl || course.videoUrl);
+        setCurrentVideo(lesson.videoUrl || course.videoUrl || course.previewVideo);
         lastClockTimeRef.current = 0;
         timeAccumulatorRef.current = 0;
     };
@@ -598,8 +598,15 @@ const CourseDetail = ({ enrollments = [], isPlayerMode = false }) => {
             );
             const isYoutube = currentVideo.includes('youtube.com') || currentVideo.includes('youtu.be');
             if (isYoutube) {
-                let embedUrl = currentVideo.includes('watch?v=') ? currentVideo.replace('watch?v=', 'embed/') : currentVideo;
-                return <iframe src={embedUrl} title="Course Player" className="lp-player-iframe" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />;
+                let embedUrl = currentVideo;
+                if (currentVideo.includes('watch?v=')) {
+                    const videoId = new URLSearchParams(currentVideo.split('?')[1]).get('v');
+                    embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                } else if (currentVideo.includes('youtu.be/')) {
+                    const videoId = currentVideo.split('youtu.be/')[1].split('?')[0];
+                    embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                }
+                return <iframe src={embedUrl} title="Course Player" className="lp-player-iframe" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />;
             }
             return <VideoPlayer src={currentVideo} onUpdateProgress={handleUpdateProgress} onDurationReceived={handleDurationReceived} onEnded={() => currentLesson && handleLessonComplete(currentLesson._id)} />;
         };
@@ -1094,19 +1101,40 @@ const CourseDetail = ({ enrollments = [], isPlayerMode = false }) => {
                             {/* Video Preview */}
                             <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', backgroundColor: '#000' }}>
                                 {showPreview ? (
-                                    course.videoUrl?.includes('youtube.com') || course.videoUrl?.includes('youtu.be') ? (
-                                        <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%', borderRadius: '12px', overflow: 'hidden' }}>
-                                            <iframe
-                                                src={course.videoUrl.replace('watch?v=', 'embed/')}
-                                                title="Preview"
-                                                allow="autoplay; encrypted-media"
-                                                allowFullScreen
-                                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                                            />
-                                        </div>
-                                    ) : (
-                                        <video src={course.videoUrl} controls autoPlay style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain' }} />
-                                    )
+                                    (() => {
+                                        const vid = course.videoUrl || course.previewVideo;
+                                        if (!vid) {
+                                            return (
+                                                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#111', color: '#fff' }}>
+                                                    <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.8 }}>Preview unavailable</p>
+                                                </div>
+                                            );
+                                        }
+                                        const isYoutube = vid.includes('youtube.com') || vid.includes('youtu.be');
+                                        if (isYoutube) {
+                                            let embedUrl = vid;
+                                            if (vid.includes('watch?v=')) {
+                                                const videoId = new URLSearchParams(vid.split('?')[1]).get('v');
+                                                embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                                            } else if (vid.includes('youtu.be/')) {
+                                                const videoId = vid.split('youtu.be/')[1].split('?')[0];
+                                                embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                                            }
+                                            return (
+                                                <iframe
+                                                    src={embedUrl}
+                                                    title="Preview"
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                    allowFullScreen
+                                                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                                                />
+                                            );
+                                        }
+                                        // Fallback for direct MP4 or other HTML5 supported URLs
+                                        return (
+                                            <video src={vid} controls autoPlay style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain' }} />
+                                        );
+                                    })()
                                 ) : (
                                     <div style={{ position: 'relative', width: '100%', height: '100%', cursor: 'pointer' }} onClick={() => setShowPreview(true)}>
                                         <img src={course.thumbnailUrl || course.thumbnail} alt="Thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} />
