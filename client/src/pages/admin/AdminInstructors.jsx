@@ -19,9 +19,11 @@ import './AdminInstructors.css';
 const getApiOrigin = () => {
     let origin = import.meta.env.VITE_API_URL;
     if (import.meta.env.PROD && !origin) {
-        throw new Error("VITE_API_URL environment variable is required in production.");
+        console.error("CRITICAL: VITE_API_URL environment variable is missing in production!");
+        origin = 'https://MISSING-VITE-API-URL.error';
+    } else if (!origin) {
+        origin = 'http://127.0.0.1:5000';
     }
-    origin = origin || 'http://127.0.0.1:5000';
     return origin.replace(/\/+$/, '');
 };
 

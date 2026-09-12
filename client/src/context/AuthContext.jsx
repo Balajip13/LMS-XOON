@@ -9,10 +9,11 @@ const normalizeRole = (role) => String(role || '').trim().toLowerCase();
 let apiBaseUrl = import.meta.env.VITE_API_URL;
 
 if (import.meta.env.PROD && !apiBaseUrl) {
-    throw new Error("VITE_API_URL environment variable is required in production. Do not rely on localhost fallback.");
-}
-
-if (!apiBaseUrl) {
+    console.error("CRITICAL: VITE_API_URL environment variable is missing in production!");
+    // We do NOT silently use localhost. We assign a dummy URL so network requests visibly fail
+    // to a missing domain rather than crashing the entire React module during evaluation.
+    apiBaseUrl = 'https://MISSING-VITE-API-URL.error';
+} else if (!apiBaseUrl) {
     apiBaseUrl = 'http://127.0.0.1:5000';
 }
 
