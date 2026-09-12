@@ -4,6 +4,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import mongoose from 'mongoose';
 import connectDB from './config/db.js';
 import createDefaultAdmin from './utils/seedAdmin.js';
 import seedCategories from './utils/seedCategories.js';
@@ -42,10 +43,13 @@ app.use(helmet({
 }));
 
 // 🚀 ✅ FIXED CORS (PRODUCTION SAFE)
-app.use(cors({
-    origin: true,
+const corsOptions = {
+    origin: process.env.NODE_ENV === 'production' 
+        ? (process.env.CLIENT_URL || false) // False blocks CORS if CLIENT_URL is missing in prod
+        : true, // Allow true for local development
     credentials: true
-}));
+};
+app.use(cors(corsOptions));
 
 // Body parsing
 app.use(express.json());
@@ -70,6 +74,17 @@ app.use('/uploads', express.static(uploadDir));
 
 // Health check
 app.get('/api/health', (req, res) => {
+    // Check if database is connected
+    const isDbConnected = mongoose.connection.readyState === 1;
+
+    if (!isDbConnected) {
+        return res.status(503).json({
+            success: false,
+            message: 'XOON LMS API is unavailable (Database disconnected)',
+            dbStatus: mongoose.connection.readyState
+        });
+    }
+
     res.status(200).json({
         success: true,
         message: 'XOON LMS API is healthy'
