@@ -23,11 +23,18 @@ const CourseForm = () => {
         isPublished: false
     });
 
+    const [categories, setCategories] = useState([]);
+
     useEffect(() => {
-        if (isEditMode) {
-            // Fetch course details
-            const fetchCourse = async () => {
-                try {
+        const fetchInitialData = async () => {
+            try {
+                // Fetch Categories
+                const { data: catData } = await api.get('/categories');
+                const fetchedCategories = catData.categories || [];
+                setCategories(fetchedCategories);
+
+                if (isEditMode) {
+                    // Fetch course details
                     const { data } = await api.get(`/courses/${id}`);
                     setFormData({
                         title: data.title,
@@ -35,18 +42,20 @@ const CourseForm = () => {
                         price: data.price,
                         originalPrice: data.originalPrice,
                         discountPercentage: data.discountPercentage,
-                        category: data.category?._id || data.category, // Handle if category is object or string
+                        category: data.category?._id || data.category || '', // Handle if category is object or string
                         thumbnail: data.thumbnail,
                         instructor: data.instructorName || data.instructor?.name || '', // Handle if instructor is object or string
                         isPublished: data.isPublished
                     });
-                } catch (error) {
-                    console.error('Failed to load course details:', error);
-                    toast.error('Failed to load course details');
+                } else if (fetchedCategories.length > 0) {
+                    setFormData(prev => ({ ...prev, category: fetchedCategories[0]._id }));
                 }
-            };
-            fetchCourse();
-        }
+            } catch (error) {
+                console.error('Failed to load data:', error);
+                toast.error('Failed to load initial data');
+            }
+        };
+        fetchInitialData();
     }, [id, isEditMode, api]);
 
     const handleSubmit = async (e) => {
@@ -126,10 +135,11 @@ const CourseForm = () => {
                             style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text)' }}
                         >
                             <option value="">Select Category</option>
-                            <option value="Web Dev">Web Development</option>
-                            <option value="Programming">Programming</option>
-                            <option value="Data Science">Data Science</option>
-                            <option value="Marketing">Marketing</option>
+                            {categories.map((cat) => (
+                                <option key={cat._id} value={cat._id}>
+                                    {cat.name}
+                                </option>
+                            ))}
                         </select>
                     </div>
 

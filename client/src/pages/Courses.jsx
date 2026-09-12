@@ -36,11 +36,26 @@ const Courses = () => {
 
     // Combined filter logic
     const filteredCourses = (courses || []).filter(course => {
-        const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase());
-        const categoryName = course.category?.name || course.category;
+        const categoryName = course.category?.name || course.category || '';
         const matchesCategory = selectedCategory === 'All' || categoryName === selectedCategory;
+        
+        if (!searchTerm || searchTerm.trim() === '') {
+            return matchesCategory;
+        }
+
+        const term = searchTerm.trim().toLowerCase();
+        
+        const titleMatch = course.title?.toLowerCase().includes(term);
+        const descMatch = course.description?.toLowerCase().includes(term);
+        const instMatch = course.instructorName?.toLowerCase().includes(term) || course.instructor?.name?.toLowerCase().includes(term);
+        const catMatch = categoryName.toLowerCase().includes(term);
+
+        const matchesSearch = titleMatch || descMatch || instMatch || catMatch;
+
         return matchesSearch && matchesCategory;
     });
+
+    const DEFAULT_THUMBNAIL = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop';
 
     return (
         <div className="container" style={{ padding: '4rem 1.5rem' }}>
@@ -56,7 +71,7 @@ const Courses = () => {
                 </div>
                 <input 
                     type="text"
-                    placeholder="Search courses by title..."
+                    placeholder="Search courses by title, instructor, or keywords..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -94,13 +109,14 @@ const Courses = () => {
                         <Link key={course._id} to={`/course/${course._id}`} className="course-card">
                             <div className="course-card-image-wrapper">
                                 <img 
-                                    src={course.thumbnailUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop'} 
+                                    src={course.thumbnailUrl || course.thumbnail || DEFAULT_THUMBNAIL} 
                                     alt={course.title} 
                                     className="course-card-image"
+                                    onError={(e) => { e.target.onerror = null; e.target.src = DEFAULT_THUMBNAIL; }}
                                 />
                             </div>
                             <div className="course-card-content">
-                                <span className="course-card-category">{course.category?.name || 'Education'}</span>
+                                <span className="course-card-category">{course.category?.name || course.category || 'Education'}</span>
                                 <h3 className="course-card-title">{course.title}</h3>
                                 <p className="course-card-description">
                                     {course.description || 'Premium course by industry leading instructors...'}

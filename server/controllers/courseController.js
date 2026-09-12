@@ -135,6 +135,11 @@ const createCourse = async (req, res) => {
             }
         }
 
+        if (category && !/^[0-9a-fA-F]{24}$/.test(category)) {
+            res.status(400);
+            throw new Error('Invalid category format. Category must be a valid ObjectId.');
+        }
+
         const course = new Course({
             title: title || 'New Course',
             instructor: req.user._id,
@@ -250,6 +255,11 @@ const updateCourse = async (req, res) => {
             if (videoUrl !== undefined) {
                 course.videoUrl = videoUrl;
             }
+        }
+
+        if (category && !/^[0-9a-fA-F]{24}$/.test(category)) {
+            res.status(400);
+            throw new Error('Invalid category format. Category must be a valid ObjectId.');
         }
 
         course.category = category || course.category;

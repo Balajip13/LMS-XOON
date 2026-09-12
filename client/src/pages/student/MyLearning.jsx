@@ -77,8 +77,10 @@ const MyLearning = ({ courses = [] }) => {
                                 <div style={{ height: '180px', overflow: 'hidden', position: 'relative' }}>
                                     <Link to={`/student/course/${course?._id}/learn`}>
                                         <img
-                                            src={course.thumbnailUrl || "/default-course.png"}
+                                            src={course.thumbnailUrl || course.thumbnail || "/default-course.png"}
                                             alt={course.title}
+                                            className="course-card-image"
+                                            onError={(e) => { e.target.onerror = null; e.target.src = "/default-course.png"; }}
                                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                         />
                                     </Link>

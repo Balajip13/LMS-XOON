@@ -112,9 +112,10 @@ const StudentCourseList = () => {
                             <Link to={`/student/course/${course._id}/preview`} key={course._id} className="course-card">
                                 <div className="course-card-image-wrapper">
                                     <img
-                                        src={course.thumbnailUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}
+                                        src={course.thumbnailUrl || course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}
                                         alt={course.title}
                                         className="course-card-image"
+                                        onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'; }}
                                     />
                                     <div style={{ position: 'absolute', top: '0.75rem', left: '0.75rem' }}>
                                         <span style={{
